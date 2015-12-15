@@ -1,0 +1,874 @@
+<?php
+
+/**
+ *  README for sample service
+ *
+ *  This generated sample service contains functions that illustrate typical service operations.
+ *  Use these functions as a starting point for creating your own service implementation. Modify the 
+ *  function signatures, references to the database, and implementation according to your needs. 
+ *  Delete the functions that you do not use.
+ *
+ *  Save your changes and return to Flash Builder. In Flash Builder Data/Services View, refresh 
+ *  the service. Then drag service operations onto user interface components in Design View. For 
+ *  example, drag the getAllItems() operation onto a DataGrid.
+ *  
+ *  This code is for prototyping only.
+ *  
+ *  Authenticate the user prior to allowing them to call these methods. You can find more 
+ *  information at http://www.adobe.com/go/flex_security
+ *
+ */
+class TaskService {
+
+	var $username = "root";
+	var $password = "shacole";
+	var $server = "localhost";
+	var $port = "3306";
+	var $databasename = "task_manager";
+	var $tablename = "task";
+
+	var $connection;
+
+	/**
+	 * The constructor initializes the connection to database. Everytime a request is 
+	 * received by Zend AMF, an instance of the service class is created and then the
+	 * requested method is invoked.
+	 */
+	public function __construct() {
+	  	$this->connection = mysqli_connect(
+	  							$this->server,  
+	  							$this->username,  
+	  							$this->password, 
+	  							$this->databasename,
+	  							$this->port
+	  						);
+
+		$this->throwExceptionOnError($this->connection);
+	}
+
+	/**
+	 * Returns all the rows from the table.
+	 *
+	 * Add authroization or any logical checks for secure access to your data 
+	 *
+	 * @return array
+	 */
+	public function getAllTask() {
+
+		$stmt = mysqli_prepare($this->connection, "SELECT * FROM $this->tablename");		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->PRIORITY_NR, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+		
+	    while (mysqli_stmt_fetch($stmt)) {
+		  /*
+		  $row->DEADLINE_DT = new DateTime($row->DEADLINE_DT,new DateTimeZone('America/New_York'));
+		  $row->DEADLINE_DT = date_format($row->DEADLINE_DT, 'Y-m-d');
+		  
+	      $row->ESTIMATED_COMPLETION_DT = new DateTime($row->ESTIMATED_COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->ESTIMATED_COMPLETION_DT = date_format($row->ESTIMATED_COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->COMPLETION_DT = new DateTime($row->COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->COMPLETION_DT = date_format($row->COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->CREATED_DTTM = new DateTime($row->CREATED_DTTM,new DateTimeZone('America/New_York'));
+	      $row->LAST_UPDATED_DTTM = new DateTime($row->LAST_UPDATED_DTTM,new DateTimeZone('America/New_York'));
+		  */
+		  $row->DEADLINE_DT = new DateTime($row->DEADLINE_DT,new DateTimeZone('America/New_York'));
+		  $row->ESTIMATED_COMPLETION_DT = new DateTime($row->ESTIMATED_COMPLETION_DT,new DateTimeZone('America/New_York'));
+	      $row->COMPLETION_DT = new DateTime($row->COMPLETION_DT,new DateTimeZone('America/New_York'));
+	      $row->CREATED_DTTM = new DateTime($row->CREATED_DTTM,new DateTimeZone('America/New_York'));
+	      $row->LAST_UPDATED_DTTM = new DateTime($row->LAST_UPDATED_DTTM,new DateTimeZone('America/New_York'));
+	      $rows[] = $row;
+	      $row = new stdClass();
+	      mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->PRIORITY_NR, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+	    }
+		
+		mysqli_stmt_free_result($stmt);
+	    mysqli_close($this->connection);
+	
+	    return $rows;
+	}
+
+	/**
+	 * Returns the item corresponding to the value specified for the primary key.
+	 *
+	 * Add authorization or any logical checks for secure access to your data 
+	 *
+	 * 
+	 * @return stdClass
+	 */
+	 /*Default generated code
+	public function getTaskByID($itemID) {
+		
+		$stmt = mysqli_prepare($this->connection, "SELECT * FROM $this->tablename where TASK_ID=?");
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_bind_param($stmt, 'i', $itemID);		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->PRIORITY_NR, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+		
+		if(mysqli_stmt_fetch($stmt)) {
+	      $row->DEADLINE_DT = new DateTime($row->DEADLINE_DT);
+	      $row->ESTIMATED_COMPLETION_DT = new DateTime($row->ESTIMATED_COMPLETION_DT);
+	      $row->COMPLETION_DT = new DateTime($row->COMPLETION_DT);
+	      $row->CREATED_DTTM = new DateTime($row->CREATED_DTTM);
+	      $row->LAST_UPDATED_DTTM = new DateTime($row->LAST_UPDATED_DTTM);
+	      return $row;
+		} else {
+	      return null;
+		}
+	}
+	*/
+	
+	//code for above function written by Reporting Team
+	public function getTaskByID($item) {
+		$stmt = mysqli_prepare($this->connection, "SELECT * FROM $this->tablename where CREATED_BY_USER_NM=?");		$this->throwExceptionOnError();
+		
+		mysqli_stmt_bind_param($stmt, 's', $item);		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows= array();
+		mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->PRIORITY_NR, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+		 while (mysqli_stmt_fetch($stmt)) {
+	      $row->DEADLINE_DT = new DateTime($row->DEADLINE_DT,new DateTimeZone('America/New_York'));
+		  $row->DEADLINE_DT = date_format($row->DEADLINE_DT, 'Y-m-d');
+		  
+	      $row->ESTIMATED_COMPLETION_DT = new DateTime($row->ESTIMATED_COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->ESTIMATED_COMPLETION_DT = date_format($row->ESTIMATED_COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->COMPLETION_DT = new DateTime($row->COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->COMPLETION_DT = date_format($row->COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->CREATED_DTTM = new DateTime($row->CREATED_DTTM,new DateTimeZone('America/New_York'));
+	      $row->LAST_UPDATED_DTTM = new DateTime($row->LAST_UPDATED_DTTM,new DateTimeZone('America/New_York'));
+	      $rows[] = $row;
+	      $row = new stdClass();
+	      mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->PRIORITY_NR, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+	    }
+		
+		mysqli_stmt_free_result($stmt);		
+		mysqli_close($this->connection);
+		
+		return $rows;
+	}
+	
+	
+		/* Release 4 code*/
+	public function emailNotify(){
+		$to = "nikikatyal@gmail.com";
+		$subject = "Test mail";
+		$message = "Hello! This is a confirmation";
+		$from = "siddh.prash@gmail.com";
+		$headers = "From: " . $from;
+		if(mail($to,$subject,$message,$headers))
+		{
+			return "1";
+		}
+		else
+		{
+			return "0";
+		}
+	}
+	
+
+	/**
+	 * Returns the item corresponding to the value specified for the primary key.
+	 *
+	 * Add authorization or any logical checks for secure access to your data 
+	 *
+	 * 
+	 * @return stdClass
+	 */
+	public function createTask($item) {
+				$stmt = mysqli_prepare($this->connection, "call create_task( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $this->throwExceptionOnError();
+
+				if($item->PARENT_TASK_ID==0)
+                {
+					$item->PARENT_TASK_ID=null;
+				}
+				
+                mysqli_stmt_bind_param($stmt, 'iissssssiiis', $item->PARENT_TASK_ID, $item->PRIORITY_NR, $item->SHORT_TITLE_TX, $item->SHORT_DESCRIPTION_TX, $item->LONG_DESCRIPTION_TX, $item->DEADLINE_DT->toString('YYYY-MM-dd HH:mm:ss'), $item->ESTIMATED_COMPLETION_DT->toString('YYYY-MM-dd HH:mm:ss'), $item->COMPLETION_DT, $item->RECIPIENT_PERSON_ID, $item->ASSIGNED_ORGANIZATION_ID, $item->ASSIGNED_TO_PERSON_ID, $item->CREATED_BY_USER_NM);
+                $this->throwExceptionOnError();
+
+                mysqli_stmt_execute($stmt);
+                $this->throwExceptionOnError();
+
+                $autoid = mysqli_stmt_insert_id($stmt);
+
+                mysqli_stmt_free_result($stmt);
+                mysqli_close($this->connection);
+
+                return $autoid;
+	}
+
+	
+	public function createsubTask($item) {
+				$stmt = mysqli_prepare($this->connection, "call create_task( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $this->throwExceptionOnError();
+
+				if($item->PARENT_TASK_ID==0)
+                {
+					$item->PARENT_TASK_ID=null;
+				}
+				
+                mysqli_stmt_bind_param($stmt, 'iissssssiiis', $item->PARENT_TASK_ID, $item->PRIORITY_NR, $item->SHORT_TITLE_TX, $item->SHORT_DESCRIPTION_TX, $item->LONG_DESCRIPTION_TX, $item->DEADLINE_DT->toString('YYYY-MM-dd HH:mm:ss'), $item->ESTIMATED_COMPLETION_DT->toString('YYYY-MM-dd HH:mm:ss'), $item->COMPLETION_DT, $item->RECIPIENT_PERSON_ID, $item->ASSIGNED_ORGANIZATION_ID, $item->ASSIGNED_TO_PERSON_ID, $item->CREATED_BY_USER_NM);
+                $this->throwExceptionOnError();
+
+                mysqli_stmt_execute($stmt);
+                $this->throwExceptionOnError();
+
+                $autoid = mysqli_stmt_insert_id($stmt);
+
+                mysqli_stmt_free_result($stmt);
+                mysqli_close($this->connection);
+
+                return $autoid;
+	}
+	
+	/**
+	 * Updates the passed item in the table.
+	 *
+	 * Add authorization or any logical checks for secure access to your data 
+	 *
+	 * @param stdClass $item
+	 * @return void
+	 */
+	public function updateTask($item) {
+	
+		$stmt = mysqli_prepare($this->connection, "UPDATE $this->tablename SET PARENT_TASK_ID=?, PRIORITY_NR=?, SHORT_TITLE_TX=?, SHORT_DESCRIPTION_TX=?, LONG_DESCRIPTION_TX=?, DEADLINE_DT=?, ESTIMATED_COMPLETION_DT=?, COMPLETION_DT=?, RECIPIENT_PERSON_ID=?, ASSIGNED_ORGANIZATION_ID=?, ASSIGNED_TO_PERSON_ID=?, ASSIGNED_BY_PERSON_ID=?, CREATED_BY_USER_NM=?, CREATED_DTTM=?, LAST_UPDATED_BY_USER_NM=?, LAST_UPDATED_DTTM=? WHERE TASK_ID=?");		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_bind_param($stmt, 'iissssssiiiissssi', $item->PARENT_TASK_ID, $item->PRIORITY_NR, $item->SHORT_TITLE_TX, $item->SHORT_DESCRIPTION_TX, $item->LONG_DESCRIPTION_TX, $item->DEADLINE_DT->toString('YYYY-MM-dd HH:mm:ss'), $item->ESTIMATED_COMPLETION_DT->toString('YYYY-MM-dd HH:mm:ss'), $item->COMPLETION_DT->toString('YYYY-MM-dd HH:mm:ss'), $item->RECIPIENT_PERSON_ID, $item->ASSIGNED_ORGANIZATION_ID, $item->ASSIGNED_TO_PERSON_ID, $item->ASSIGNED_BY_PERSON_ID, $item->CREATED_BY_USER_NM, $item->CREATED_DTTM->toString('YYYY-MM-dd HH:mm:ss'), $item->LAST_UPDATED_BY_USER_NM, $item->LAST_UPDATED_DTTM->toString('YYYY-MM-dd HH:mm:ss'), $item->TASK_ID);		
+		$this->throwExceptionOnError();
+
+		mysqli_stmt_execute($stmt);		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_free_result($stmt);		
+		mysqli_close($this->connection);
+	}
+
+	/**
+	 * Deletes the item corresponding to the passed primary key value from 
+	 * the table.
+	 *
+	 * Add authorization or any logical checks for secure access to your data 
+	 *
+	 * 
+	 * @return void
+	 */
+	 /*Default function
+	public function deleteTask($itemID) {
+				
+		$stmt = mysqli_prepare($this->connection, "DELETE FROM $this->tablename WHERE TASK_ID = ?");
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_bind_param($stmt, 'i', $itemID);
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_free_result($stmt);		
+		mysqli_close($this->connection);
+	}
+	*/
+	
+		public function deleteTask($item1, $item2) {
+				
+		$stmt = mysqli_prepare($this->connection, "call remove_task(?, ?)");
+		//DELETE FROM $this->tablename WHERE PERSON_ID = ?"
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_bind_param($stmt, 'is', $item1, $item2);
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_free_result($stmt);		
+		mysqli_close($this->connection);
+	}
+
+	/**
+	 * Returns the number of rows in the table.
+	 *
+	 * Add authorization or any logical checks for secure access to your data 
+	 *
+	 * 
+	 */
+	public function count() {
+		$stmt = mysqli_prepare($this->connection, "SELECT COUNT(*) AS COUNT FROM $this->tablename");
+		$this->throwExceptionOnError();
+
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_bind_result($stmt, $rec_count);
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_fetch($stmt);
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_free_result($stmt);
+		mysqli_close($this->connection);
+		
+		return $rec_count;
+	}
+
+
+	/**
+	 * Returns $numItems rows starting from the $startIndex row from the 
+	 * table.
+	 *
+	 * Add authorization or any logical checks for secure access to your data 
+	 *
+	 * 
+	 * 
+	 * @return array
+	 */
+	public function getTask_paged($startIndex, $numItems) {
+		
+		$stmt = mysqli_prepare($this->connection, "SELECT * FROM $this->tablename LIMIT ?, ?");
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_bind_param($stmt, 'ii', $startIndex, $numItems);
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->PRIORITY_NR, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+		
+	    while (mysqli_stmt_fetch($stmt)) {
+	      $row->DEADLINE_DT = new DateTime($row->DEADLINE_DT);
+	      $row->ESTIMATED_COMPLETION_DT = new DateTime($row->ESTIMATED_COMPLETION_DT);
+	      $row->COMPLETION_DT = new DateTime($row->COMPLETION_DT);
+	      $row->CREATED_DTTM = new DateTime($row->CREATED_DTTM);
+	      $row->LAST_UPDATED_DTTM = new DateTime($row->LAST_UPDATED_DTTM);
+	      $rows[] = $row;
+	      $row = new stdClass();
+	      mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->PRIORITY_NR, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+	    }
+		
+		mysqli_stmt_free_result($stmt);		
+		mysqli_close($this->connection);
+		
+		return $rows;
+	}
+	
+	
+	/**
+	 * Utility function to throw an exception if an error occurs 
+	 * while running a mysql command.
+	 */
+	private function throwExceptionOnError($link = null) {
+		if($link == null) {
+			$link = $this->connection;
+		}
+		if(mysqli_error($link)) {
+			$msg = mysqli_errno($link) . ": " . mysqli_error($link);
+			throw new Exception('MySQL Error - '. $msg);
+		}		
+	}
+	
+	
+	/*
+	//AMOL's code
+	//What Amol wrote
+	public function updateTaskFinal($item) {   // I AM CALLING THIS
+
+	//	$stmt = mysqli_prepare($this->connection, "call create_task( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+	
+	//	$stmt = mysqli_prepare($this->connection, "call modify_task( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");	
+	//	$this->throwExceptionOnError();
+		
+       //  $item->PARENT_TASK_ID=null;
+				
+        //        mysqli_stmt_bind_param($stmt, 'iissssssiiis', $item-> TASK_ID, $item->PARENT_TASK_ID, $item->PRIORITY_NR, $item->SHORT_TITLE_TX, $item->SHORT_DESCRIPTION_TX, $item->LONG_DESCRIPTION_TX, $item->DEADLINE_DT, $item->ESTIMATED_COMPLETION_DT, $item->COMPLETION_DT, $item->RECIPIENT_PERSON_ID, $item->ASSIGNED_ORGANIZATION_ID, $item->ASSIGNED_TO_PERSON_ID, $item->LAST_UPDATED_BY_USER_NM);
+               
+					$stmt = mysqli_prepare($this->connection, "call modify_task( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+					$this->throwExceptionOnError();
+
+				//	$stmt = mysqli_prepare($this->connection, "UPDATE $this->tablename SET PARENT_TASK_ID=?, PRIORITY_NR=?, SHORT_TITLE_TX=?, SHORT_DESCRIPTION_TX=?, LONG_DESCRIPTION_TX=?, DEADLINE_DT=?, ESTIMATED_COMPLETION_DT=?, COMPLETION_DT=?, RECIPIENT_PERSON_ID=?, ASSIGNED_ORGANIZATION_ID=?, ASSIGNED_TO_PERSON_ID=?, LAST_UPDATED_BY_USER_NM=? WHERE TASK_ID=?");	
+
+
+				$this->throwExceptionOnError();
+				// ('YYYY-MM-dd HH:mm:ss')
+
+
+	mysqli_stmt_bind_param($stmt, 'iissssssiiisi' , $item->TASK_ID, $item->PARENT_TASK_ID, $item->PRIORITY_NR, $item->SHORT_TITLE_TX, $item->SHORT_DESCRIPTION_TX, $item->LONG_DESCRIPTION_TX, $item->DEADLINE_DT, $item->ESTIMATED_COMPLETION_DT->toString, $item->COMPLETION_DT->toString, $item->RECIPIENT_PERSON_ID, $item->ASSIGNED_ORGANIZATION_ID, $item->ASSIGNED_TO_PERSON_ID, $item->LAST_UPDATED_BY_USER_NM);		
+		
+		$this->throwExceptionOnError();
+
+
+
+
+		mysqli_stmt_execute($stmt);		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_free_result($stmt);		
+		mysqli_close($this->connection);
+	}
+	*/
+	
+	//What SE team wrote
+	public function updateTaskFinal($item) {   // I AM CALLING THIS
+
+		$stmt = mysqli_prepare($this->connection, "call modify_task( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		$this->throwExceptionOnError();
+
+		$this->throwExceptionOnError();
+
+		if($item->PARENT_TASK_ID==0)
+		{
+			$item->PARENT_TASK_ID=null;
+		}
+		mysqli_stmt_bind_param($stmt, 'iiissssssiiis' , $item->TASK_ID, $item->PARENT_TASK_ID, $item->PRIORITY_NR, $item->SHORT_TITLE_TX, $item->SHORT_DESCRIPTION_TX, $item->LONG_DESCRIPTION_TX, $item->DEADLINE_DT->toString('YYYY-MM-dd HH:mm:ss'), $item->ESTIMATED_COMPLETION_DT->toString('YYYY-MM-dd HH:mm:ss'), $item->COMPLETION_DT->toString('YYYY-MM-dd HH:mm:ss'), $item->RECIPIENT_PERSON_ID, $item->ASSIGNED_ORGANIZATION_ID, $item->ASSIGNED_TO_PERSON_ID, $item->LAST_UPDATED_BY_USER_NM);		
+		
+		$this->throwExceptionOnError();
+
+		mysqli_stmt_execute($stmt);		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_free_result($stmt);		
+		mysqli_close($this->connection);
+	}
+
+
+	public function delegatetask($item) {    // I AM CALLING THIS
+
+					$stmt = mysqli_prepare($this->connection, "call assign_task( ?, ?, ?)");
+					$this->throwExceptionOnError();
+
+				//	$stmt = mysqli_prepare($this->connection, "UPDATE $this->tablename SET PARENT_TASK_ID=?, PRIORITY_NR=?, SHORT_TITLE_TX=?, SHORT_DESCRIPTION_TX=?, LONG_DESCRIPTION_TX=?, DEADLINE_DT=?, ESTIMATED_COMPLETION_DT=?, COMPLETION_DT=?, RECIPIENT_PERSON_ID=?, ASSIGNED_ORGANIZATION_ID=?, ASSIGNED_TO_PERSON_ID=?, LAST_UPDATED_BY_USER_NM=? WHERE TASK_ID=?");	
+
+
+				$this->throwExceptionOnError();
+				// ('YYYY-MM-dd HH:mm:ss')
+
+
+	mysqli_stmt_bind_param($stmt, 'iis' , $item->TASK_ID, $item->ASSIGNED_TO_PERSON_ID, $item->LAST_UPDATED_BY_USER_NM);		
+		
+		$this->throwExceptionOnError();
+
+		mysqli_stmt_execute($stmt);		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_free_result($stmt);		
+		mysqli_close($this->connection);
+	}
+
+/*Function for Release 3
+	public function getAllComplete() {
+
+		$stmt = mysqli_prepare($this->connection, "SELECT * FROM $this->tablename where COMPLETION_DT IS NOT NULL");		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+		
+	    while (mysqli_stmt_fetch($stmt)) {
+	      $row->DEADLINE_DT = new DateTime($row->DEADLINE_DT);
+	      $row->ESTIMATED_COMPLETION_DT = new DateTime($row->ESTIMATED_COMPLETION_DT);
+	      $row->COMPLETION_DT = new DateTime($row->COMPLETION_DT);
+	      $row->CREATED_DTTM = new DateTime($row->CREATED_DTTM);
+	      $row->LAST_UPDATED_DTTM = new DateTime($row->LAST_UPDATED_DTTM);
+	      $rows[] = $row;
+	      $row = new stdClass();
+	      mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+	    }
+		
+		mysqli_stmt_free_result($stmt);
+	    mysqli_close($this->connection);
+	
+	    return $rows;
+	}
+	*/
+	
+	//Function for Release 4
+	public function getAllComplete($item) {
+
+		$stmt = mysqli_prepare($this->connection, "SELECT * FROM $this->tablename where COMPLETION_DT IS NOT NULL and CREATED_BY_USER_NM=?");		
+		$this->throwExceptionOnError();
+		mysqli_stmt_bind_param($stmt, 's', $item);		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+		
+	    while (mysqli_stmt_fetch($stmt)) {
+		  
+		  $row->DEADLINE_DT = new DateTime($row->DEADLINE_DT,new DateTimeZone('America/New_York'));
+		  $row->DEADLINE_DT = date_format($row->DEADLINE_DT, 'Y-m-d');
+		  
+	      $row->ESTIMATED_COMPLETION_DT = new DateTime($row->ESTIMATED_COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->ESTIMATED_COMPLETION_DT = date_format($row->ESTIMATED_COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->COMPLETION_DT = new DateTime($row->COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->COMPLETION_DT = date_format($row->COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->CREATED_DTTM = new DateTime($row->CREATED_DTTM,new DateTimeZone('America/New_York'));
+	      $row->LAST_UPDATED_DTTM = new DateTime($row->LAST_UPDATED_DTTM,new DateTimeZone('America/New_York'));
+	      $rows[] = $row;
+	      $row = new stdClass();
+	      mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+	    }
+		
+		mysqli_stmt_free_result($stmt);
+	    mysqli_close($this->connection);
+	
+	    return $rows;
+	}
+
+	
+	
+
+/**
+	 * Returns all the rows from the table.
+	 *
+	 * Add authroization or any logical checks for secure access to your data 
+	 *
+	 * @return array
+	 */
+	 /* Function for Release 3
+	public function getAllActive() {
+
+		$stmt = mysqli_prepare($this->connection, "SELECT * FROM $this->tablename where COMPLETION_DT IS NULL");		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+		
+	    while (mysqli_stmt_fetch($stmt)) {
+	      $row->DEADLINE_DT = new DateTime($row->DEADLINE_DT);
+	      $row->ESTIMATED_COMPLETION_DT = new DateTime($row->ESTIMATED_COMPLETION_DT);
+	      $row->COMPLETION_DT = null;
+	      $row->CREATED_DTTM = new DateTime($row->CREATED_DTTM);
+	      $row->LAST_UPDATED_DTTM = new DateTime($row->LAST_UPDATED_DTTM);
+	      $rows[] = $row;
+	      $row = new stdClass();
+	      mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+	    }
+		
+		mysqli_stmt_free_result($stmt);
+	    mysqli_close($this->connection);
+	
+	    return $rows;
+	}
+	*/
+	//Function for Release 4
+		public function getAllActive($item) {
+
+		$stmt = mysqli_prepare($this->connection, "SELECT * FROM $this->tablename where COMPLETION_DT IS NULL and CREATED_BY_USER_NM=?");		
+		$this->throwExceptionOnError();
+		mysqli_stmt_bind_param($stmt, 's', $item);		
+		$this->throwExceptionOnError();
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+		
+	    while (mysqli_stmt_fetch($stmt)) {
+	  
+		  $row->DEADLINE_DT = new DateTime($row->DEADLINE_DT,new DateTimeZone('America/New_York'));
+		  $row->DEADLINE_DT = date_format($row->DEADLINE_DT, 'Y-m-d');
+		  
+	      $row->ESTIMATED_COMPLETION_DT = new DateTime($row->ESTIMATED_COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->ESTIMATED_COMPLETION_DT = date_format($row->ESTIMATED_COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->COMPLETION_DT = new DateTime($row->COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->COMPLETION_DT = date_format($row->COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->CREATED_DTTM = new DateTime($row->CREATED_DTTM,new DateTimeZone('America/New_York'));
+	      $row->LAST_UPDATED_DTTM = new DateTime($row->LAST_UPDATED_DTTM,new DateTimeZone('America/New_York'));
+	      $rows[] = $row;
+	      $row = new stdClass();
+	      mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+	    }
+		
+		mysqli_stmt_free_result($stmt);
+	    mysqli_close($this->connection);
+	
+	    return $rows;
+	}
+			
+			
+	//REPORTING TEAM CODE FOR RELEASE 4
+	public function getOverdue($item) {
+		$stmt = mysqli_prepare($this->connection, "SELECT * FROM $this->tablename where COMPLETION_DT IS NULL and CREATED_BY_USER_NM=? and (DEADLINE_DT < NOW())");		
+		$this->throwExceptionOnError();
+		mysqli_stmt_bind_param($stmt, 's', $item);		
+		$this->throwExceptionOnError();
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+		
+	    while (mysqli_stmt_fetch($stmt)) {
+	      $row->DEADLINE_DT = new DateTime($row->DEADLINE_DT,new DateTimeZone('America/New_York'));
+		  $row->DEADLINE_DT = date_format($row->DEADLINE_DT, 'Y-m-d');
+		  
+	      $row->ESTIMATED_COMPLETION_DT = new DateTime($row->ESTIMATED_COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->ESTIMATED_COMPLETION_DT = date_format($row->ESTIMATED_COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->COMPLETION_DT = new DateTime($row->COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->COMPLETION_DT = date_format($row->COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->CREATED_DTTM = new DateTime($row->CREATED_DTTM,new DateTimeZone('America/New_York'));
+	      $row->LAST_UPDATED_DTTM = new DateTime($row->LAST_UPDATED_DTTM,new DateTimeZone('America/New_York'));
+	      $rows[] = $row;
+	      $row = new stdClass();
+	      mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+	    }
+		
+		mysqli_stmt_free_result($stmt);
+	    mysqli_close($this->connection);
+	
+	    return $rows;
+		}
+
+		
+		//Reporting team code for Release 5
+		public function getAtRisk($item) {
+		$stmt = mysqli_prepare($this->connection, "SELECT * FROM $this->tablename where COMPLETION_DT IS NULL and CREATED_BY_USER_NM=? and (DEADLINE_DT = curdate())");		
+		$this->throwExceptionOnError();
+		mysqli_stmt_bind_param($stmt, 's', $item);		
+		$this->throwExceptionOnError();
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+		
+	    while (mysqli_stmt_fetch($stmt)) {
+	      $row->DEADLINE_DT = new DateTime($row->DEADLINE_DT,new DateTimeZone('America/New_York'));
+		  $row->DEADLINE_DT = date_format($row->DEADLINE_DT, 'Y-m-d');
+		  
+	      $row->ESTIMATED_COMPLETION_DT = new DateTime($row->ESTIMATED_COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->ESTIMATED_COMPLETION_DT = date_format($row->ESTIMATED_COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->COMPLETION_DT = new DateTime($row->COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->COMPLETION_DT = date_format($row->COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->CREATED_DTTM = new DateTime($row->CREATED_DTTM,new DateTimeZone('America/New_York'));
+	      $row->LAST_UPDATED_DTTM = new DateTime($row->LAST_UPDATED_DTTM,new DateTimeZone('America/New_York'));
+	      $rows[] = $row;
+	      $row = new stdClass();
+	      mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+	    }
+		
+		mysqli_stmt_free_result($stmt);
+	    mysqli_close($this->connection);
+	
+	    return $rows;
+		}
+		
+		
+		public function getOnTime($item) {
+		$stmt = mysqli_prepare($this->connection, "SELECT * FROM $this->tablename where COMPLETION_DT is NULL and CREATED_BY_USER_NM=? and (DEADLINE_DT > NOW())");		
+		$this->throwExceptionOnError();
+		mysqli_stmt_bind_param($stmt, 's', $item);		
+		$this->throwExceptionOnError();
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+		
+	    while (mysqli_stmt_fetch($stmt)) {
+	      $row->DEADLINE_DT = new DateTime($row->DEADLINE_DT,new DateTimeZone('America/New_York'));
+		  $row->DEADLINE_DT = date_format($row->DEADLINE_DT, 'Y-m-d');
+		  
+	      $row->ESTIMATED_COMPLETION_DT = new DateTime($row->ESTIMATED_COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->ESTIMATED_COMPLETION_DT = date_format($row->ESTIMATED_COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->COMPLETION_DT = new DateTime($row->COMPLETION_DT,new DateTimeZone('America/New_York'));
+		  $row->COMPLETION_DT = date_format($row->COMPLETION_DT, 'Y-m-d');
+		  
+	      $row->CREATED_DTTM = new DateTime($row->CREATED_DTTM,new DateTimeZone('America/New_York'));
+	      $row->LAST_UPDATED_DTTM = new DateTime($row->LAST_UPDATED_DTTM,new DateTimeZone('America/New_York'));
+	      $rows[] = $row;
+	      $row = new stdClass();
+	      mysqli_stmt_bind_result($stmt, $row->TASK_ID, $row->PARENT_TASK_ID, $row->priority_nr, $row->SHORT_TITLE_TX, $row->SHORT_DESCRIPTION_TX, $row->LONG_DESCRIPTION_TX, $row->DEADLINE_DT, $row->ESTIMATED_COMPLETION_DT, $row->COMPLETION_DT, $row->RECIPIENT_PERSON_ID, $row->ASSIGNED_ORGANIZATION_ID, $row->ASSIGNED_TO_PERSON_ID, $row->ASSIGNED_BY_PERSON_ID, $row->CREATED_BY_USER_NM, $row->CREATED_DTTM, $row->LAST_UPDATED_BY_USER_NM, $row->LAST_UPDATED_DTTM);
+	    }
+		
+		mysqli_stmt_free_result($stmt);
+	    mysqli_close($this->connection);
+	
+	    return $rows;
+		}
+			
+	//function for combobox
+		public function getpriority() {
+
+		$stmt = mysqli_prepare($this->connection, "SELECT PRIORITY_DESCRIPTION_TX FROM priority_lookup ORDER BY PRIORITY_NR");		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->PRIORITY_NR);
+		
+	    while (mysqli_stmt_fetch($stmt)) {
+	
+	      $rows[] = $row;
+	      $row = new stdClass();
+	    mysqli_stmt_bind_result($stmt, $row->PRIORITY_NR);
+	    }
+		
+		mysqli_stmt_free_result($stmt);
+	    mysqli_close($this->connection);
+	
+	    return $rows;
+	}
+			
+	//function to convert string to int
+	public function StringToIntPriority($item) {
+		
+		$stmt = mysqli_prepare($this->connection, "SELECT priority_nr FROM priority_lookup where priority_nr = ?");
+		
+		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_bind_param($stmt, 'i', $item);		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_bind_result($stmt, $row->priority_nr);
+
+		global $priorityvalue;
+
+		$priorityvalue = $row;
+		
+		if(mysqli_stmt_fetch($stmt)) {
+
+        
+		$priorityvalue = $row;
+		$row = new stdClass();
+		mysqli_stmt_bind_result($stmt, $row->priority_nr);
+	    
+	    return $priorityvalue;
+		} 
+		
+		else
+		{
+	      return null;
+		}
+	}
+	
+	//FUNCTION FOR ORGANIZATION DROPDOWN
+	public function getAllOrganization() {
+		
+		$stmt = mysqli_prepare($this->connection, "SELECT ORGANIZATION_NM FROM organization ORDER BY ORGANIZATION_ID ASC");
+		
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->ORGANIZATION_NM);
+		
+	    while (mysqli_stmt_fetch($stmt)) {
+	
+	      $rows[] = $row;
+	      $row = new stdClass();
+	    mysqli_stmt_bind_result($stmt, $row->ORGANIZATION_NM );
+	    }
+		
+		mysqli_stmt_free_result($stmt);
+	    mysqli_close($this->connection);
+	
+	    return $rows;
+	    }
+		
+		
+	//code for TASK RECIPIENT combo box
+	public function getAllTaskRecipientPerson() {
+		
+		$stmt = mysqli_prepare($this->connection, "SELECT CONCAT( FIRST_NM,' ',LAST_NM) FROM person ORDER BY PERSON_ID ASC");
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->FIRST_LAST_RECIPIENT_NM);
+		
+	        while (mysqli_stmt_fetch($stmt)) {
+	
+	      $rows[] = $row;
+	      $row = new stdClass();
+	      mysqli_stmt_bind_result($stmt, $row->FIRST_LAST_RECIPIENT_NM );
+	    }
+		
+		mysqli_stmt_free_result($stmt);
+	    mysqli_close($this->connection);
+	
+	    return $rows;
+	    }	
+		
+	
+	public function getAllAssignedToPerson() {
+		
+		$stmt = mysqli_prepare($this->connection, "SELECT CONCAT( FIRST_NM,' ',LAST_NM) FROM person ORDER BY PERSON_ID ASC");
+		$this->throwExceptionOnError();
+		
+		mysqli_stmt_execute($stmt);
+		$this->throwExceptionOnError();
+		
+		$rows = array();
+		
+		mysqli_stmt_bind_result($stmt, $row->FIRST_LAST_ASSIGNED_NM);
+		
+	    while (mysqli_stmt_fetch($stmt)) {
+	
+	      $rows[] = $row;
+	      $row = new stdClass();
+	    mysqli_stmt_bind_result($stmt, $row->FIRST_LAST_ASSIGNED_NM );
+	    }
+		
+		mysqli_stmt_free_result($stmt);
+	    mysqli_close($this->connection);
+	
+	    return $rows;
+	 }
+		
+}
+
+?>

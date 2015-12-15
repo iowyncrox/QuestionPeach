@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:prioritylookupservice="services.prioritylookupservice.*"
+			   xmlns:valueObjects="valueObjects.*"
+			   xmlns:taskservice="services.taskservice.*"
+			   xmlns:useraccountservice="services.useraccountservice.*"
+			   minWidth="955" minHeight="600"
+			   width.Active="1151"
+			   width.Complete="1151"
+			   width.Views="1151">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.olap.aggregators.CountAggregator;
+			import mx.utils.OnDemandEventDispatcher;
+			
+			import valueObjects.User_account;
+			
+			
+			
+
+			protected function tasks_creationCompleteHandler(event:FlexEvent):void
+			{
+				
+				getAllTaskResult.token = taskService.getAllTask();
+			}
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				getAllTaskResult.token = taskService.getAllTask();
+				
+				currentState="Views"
+				taskService.commit();
+			}
+			
+			protected function linkbutton1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+				currentState="HomePage"
+				
+			
+				
+			}
+			
+			
+			protected function compdt_creationCompleteHandler(event:FlexEvent):void
+			{
+				getAllCompleteResult.token = taskService.getAllComplete();
+				getAllCompleteResult2.token = taskService.getAllComplete();
+				getAllCompleteResult3.token = taskService.getAllComplete();
+			}
+
+			
+			protected function activetsk_creationCompleteHandler(event:FlexEvent):void
+			{
+				getAllActiveResult.token = taskService.getAllActive();
+				getAllActiveResult2.token = taskService.getAllActive();
+			}
+			
+			protected function linkbutton2_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				currentState="Complete"
+				
+			}
+			
+			protected function linkbutton3_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				currentState="Active"
+			}
+			
+			protected function linkbutton4_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				currentState="Views"
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:states>
+		<s:State name="HomePage"/>
+		<s:State name="Views"/>
+		<s:State name="Complete"/>
+		<s:State name="Active"/>
+	</s:states>
+	
+	
+	
+	<fx:Declarations>
+		<useraccountservice:UseraccountService id="useraccountService"
+											   fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+											   showBusyCursor="true"/>
+		<s:CallResponder id="getUser_accountByIDResult"
+						 result="user_account = getUser_accountByIDResult.lastResult as User_account"/>
+		<valueObjects:User_account id="user_account"/>
+		<s:CallResponder id="getUser_accountByIDResult2"/>
+		<s:CallResponder id="getTaskByIDResult"/>
+		
+		
+		<taskservice:TaskService id="taskService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<valueObjects:Task id="task"/>
+		
+		<s:CallResponder id="getAllTaskResult"/>
+		<s:CallResponder id="getAllCompleteResult"/>
+		<s:CallResponder id="getAllCompleteResult2"/>
+		<s:CallResponder id="getAllActiveResult"/>
+		<s:CallResponder id="getAllActiveResult2"/>
+		<s:CallResponder id="getAllCompleteResult3"/>
+		
+		<!-- Define Transition array with one Transition object.-->
+		<!--<mx:transitions>
+			<mx:Transition id="Trans1" fromState="*" toState="Complete">
+				<mx:Sequence id="t1" targets="{compdt}">
+					<mx:Iris showTarget="false" duration="350"/>
+					<mx:SetPropertyAction name="visible"/>
+					<mx:SetPropertyAction target="{compdt}" name="includeInLayout"/>
+				</mx:Sequence>
+			</mx:Transition>
+			
+			<mx:Transition id="Trans2" fromState="*" toState="Active">
+				<mx:Sequence id="t2" targets="{activetsk}">
+					<mx:SetPropertyAction target="{acivetsk}" name="includeInLayout"/>
+					<mx:SetPropertyAction name="visible"/>
+					<mx:Iris showTarget="true" duration="350"/>
+				</mx:Sequence>
+			</mx:Transition>
+			
+		</mx:transitions>-->
+		
+		
+	</fx:Declarations>
+	<s:Panel includeIn="HomePage" x="0" y="0" width="2000" height="2000" backgroundColor="#827E7D"
+			 chromeColor="#A90985" color="#000000" contentBackgroundColor="#1F1111"
+			 fontFamily="Georgia" fontSize="36" rollOverColor="#CEDBEF"
+			 skinClass="spark.skins.spark.PanelSkin" textAlign="center" title="MENU">
+		<s:layout>
+			<s:BasicLayout/>
+		</s:layout>
+		<s:Button x="519" y="10" label="Tasking"/>
+		<s:Button x="502" y="82" label="Reporting" click="button1_clickHandler(event)"/>
+	</s:Panel>
+	<s:Panel includeIn="Active,Complete,Views" x="0" y="0" width="2000" height="2000" chromeColor="#777373"
+			 dropShadowVisible="false" fontSize="12" title="TASK REPORT">
+		<s:layout>
+			<s:BasicLayout/>
+		</s:layout>
+		<s:BorderContainer width="1047" height="521" borderVisible="false">
+			<s:Panel x="27" y="26" width="165" height="200" chromeColor="#1E7D98" title="Views">
+				<s:layout>
+					<s:VerticalLayout/>
+				</s:layout>
+				<mx:LinkButton label="View All Tasks" click="linkbutton4_clickHandler(event)"
+							   fontWeight="bold"/>
+				<mx:LinkButton label="View Complete Tasks" click="linkbutton2_clickHandler(event)"
+							   fontWeight="bold"/>
+					
+				
+				
+				<mx:LinkButton label="View Active Tasks" click="linkbutton3_clickHandler(event)"
+							   fontWeight="bold"/>
+			
+			</s:Panel>
+			<mx:AdvancedDataGrid id="tasks" includeIn="Views" x="204" y="25" width="1000"
+								 height="501" chromeColor="#126FA4"
+								 creationComplete="tasks_creationCompleteHandler(event)"
+								 dataProvider="{getAllTaskResult.lastResult}"
+								 designViewDataType="flat" dropShadowVisible="true"
+								 sortableColumns="true" variableRowHeight="true">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn dataField="SHORT_TITLE_TX" headerText="Short Title"/>
+					<mx:AdvancedDataGridColumn dataField="priority_nr" headerText="Priority"/>
+					<mx:AdvancedDataGridColumn dataField="DEADLINE_DT" headerText="Deadline Date"/>
+					<mx:AdvancedDataGridColumn dataField="COMPLETION_DT" headerText="Completion Date"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_BY_PERSON_ID"
+											   headerText="Assigned By"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_TO_PERSON_ID"
+											   headerText="Assigned To"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_ORGANIZATION_ID"
+											   headerText="Assigned Organization"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_BY_USER_NM"
+											   headerText="Created By"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_ORGANIZATION_ID" headerText="Created Date"/>
+				</mx:columns>
+			</mx:AdvancedDataGrid>
+			<mx:AdvancedDataGrid id="compdt" includeIn="Complete" x="214" y="26" width="1000"
+								 height="600"
+								 creationComplete="compdt_creationCompleteHandler(event)"
+								 dataProvider="{getAllCompleteResult3.lastResult}"
+								 designViewDataType="flat" dropShadowVisible="true">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn dataField="SHORT_TITLE_TX" headerText="Short Title"/>
+					<mx:AdvancedDataGridColumn dataField="priority_nr" headerText="Priority"/>
+					<mx:AdvancedDataGridColumn dataField="DEADLINE_DT" headerText="Deadline"/>
+					<mx:AdvancedDataGridColumn dataField="COMPLETION_DT" headerText="Completion Date"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_ORGANIZATION_ID"
+											   headerText="Assigned Organization"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_TO_PERSON_ID"
+											   headerText="Assigned To"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_BY_PERSON_ID"
+											   headerText="Assigned By"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_BY_USER_NM"
+											   headerText="Created By"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_DTTM" headerText="Created Date"/>
+				</mx:columns>
+			</mx:AdvancedDataGrid>
+			<mx:AdvancedDataGrid id="activetsk" includeIn="Active" x="200" y="26" width="1000"
+								 height="600"
+								 creationComplete="activetsk_creationCompleteHandler(event)"
+								 dataProvider="{getAllActiveResult2.lastResult}"
+								 designViewDataType="flat" dropShadowVisible="true">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn dataField="SHORT_TITLE_TX" headerText="Short Title"/>
+					<mx:AdvancedDataGridColumn dataField="priority_nr" headerText="Priority"/>
+					<mx:AdvancedDataGridColumn dataField="DEADLINE_DT" headerText="Deadline Date"/>
+					<mx:AdvancedDataGridColumn dataField="COMPLETION_DT" headerText="Completion Date"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_ORGANIZATION_ID"
+											   headerText="Assigned Organzation"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_TO_PERSON_ID"
+											   headerText="Assigned To"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_BY_PERSON_ID"
+											   headerText="Assigned By"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_BY_USER_NM"
+											   headerText="Created By"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_DTTM" headerText="Created Date"/>
+				</mx:columns>
+			</mx:AdvancedDataGrid>
+		</s:BorderContainer>
+		<mx:LinkButton x="1052" y="-30" label="Home"
+					   click="linkbutton1_clickHandler(event)" fontWeight="bold"
+					   textAlign="center"/>
+	</s:Panel>
+	
+</s:Application>

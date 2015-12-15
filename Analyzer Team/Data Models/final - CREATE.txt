@@ -1,0 +1,77 @@
+CREATE TABLE respondee_dim (
+  respondee_id INTEGER UNSIGNED NOT NULL,
+  survey_completed BOOL NULL,
+  survey_taken_date DATE NULL,
+  username VARCHAR(100) NULL,
+  ip VARCHAR(20) NULL,
+  duration TIME NULL,
+  PRIMARY KEY(respondee_id)
+);
+
+CREATE TABLE time_dim (
+  time_id BIGINT NOT NULL,
+  date DATE NOT NULL,
+  day_2 CHAR(10) NULL,
+  day_of_week INT NULL,
+  day_of_month INT NULL,
+  day_of_year INT NULL,
+  weekend CHAR(10) NOT NULL DEFAULT "Weekday",
+  week_of_year CHAR(2) NULL,
+  month_3 CHAR(10) NULL,
+  month_of_year CHAR(2) NULL,
+  quarter_of_year INT NULL,
+  year_3 INT NULL,
+  PRIMARY KEY(time_id),
+  UNIQUE INDEX time_dim_uniq(date)
+);
+
+CREATE TABLE question_dim (
+  question_id INTEGER UNSIGNED NOT NULL,
+  questionnaire_id INTEGER(20) UNSIGNED NOT NULL,
+  question_text TEXT NULL,
+  ans_type VARCHAR(100) NULL,
+  PRIMARY KEY(question_id, questionnaire_id)
+);
+
+CREATE TABLE location_dim (
+  location_id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+  city VARCHAR(50) NULL,
+  country VARCHAR(50) NULL,
+  PRIMARY KEY(location_id)
+);
+
+CREATE TABLE questionnaire_dim (
+  questionnaire_id INTEGER(20) UNSIGNED NOT NULL,
+  topic VARCHAR(100) NULL,
+  date_created DATE NULL,
+  allow_anonymous BOOL NULL,
+  allow_multiple BOOL NULL,
+  title VARCHAR(100) NULL,
+  creator_name VARCHAR(100) NULL,
+  PRIMARY KEY(questionnaire_id)
+);
+
+
+
+CREATE TABLE `question_response` (
+  `response_id` int(10) unsigned NOT NULL,
+  `question_dim_questionnaire_id` int(20) unsigned NOT NULL,
+  `question_dim_question_id` int(10) unsigned NOT NULL,
+  `time_dim_time_id` bigint(20) DEFAULT NULL,
+  `respondee_dim_respondee_id` int(10) unsigned NOT NULL,
+  `questionnaire_dim_questionnaire_id` int(20) unsigned NOT NULL,
+  `location_dim_location_id` int(10) unsigned DEFAULT NULL,
+  `response_content` text,
+  `response_type` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`response_id`),
+  KEY `question_response_FKIndex1` (`respondee_dim_respondee_id`),
+  KEY `question_response_FKIndex2` (`location_dim_location_id`),
+  KEY `question_response_FKIndex3` (`questionnaire_dim_questionnaire_id`),
+  KEY `question_response_FKIndex4` (`time_dim_time_id`),
+  KEY `question_response_FKIndex5` (`question_dim_question_id`,`question_dim_questionnaire_id`),
+  CONSTRAINT `question_response_ibfk_2` FOREIGN KEY (`location_dim_location_id`) REFERENCES `location_dim` (`location_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `question_response_ibfk_1` FOREIGN KEY (`respondee_dim_respondee_id`) REFERENCES `respondee_dim` (`respondee_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `question_response_ibfk_3` FOREIGN KEY (`questionnaire_dim_questionnaire_id`) REFERENCES `questionnaire_dim` (`questionnaire_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `question_response_ibfk_4` FOREIGN KEY (`time_dim_time_id`) REFERENCES `time_dim` (`time_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `question_response_ibfk_5` FOREIGN KEY (`question_dim_question_id`, `question_dim_questionnaire_id`) REFERENCES `question_dim` (`question_id`, `questionnaire_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

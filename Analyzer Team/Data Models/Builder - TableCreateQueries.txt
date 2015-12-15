@@ -1,0 +1,101 @@
+CREATE TABLE IF NOT EXISTS  GWU_Questionnaire (
+                `QuestionnaireID` INT(20) NOT NULL AUTO_INCREMENT ,
+                `Title` VARCHAR( 100 ) NOT NULL ,
+                `DateCreated` DATE NOT NULL ,
+                `Topic` VARCHAR( 100 ) NULL ,
+                `AllowAnonymous` BOOL NOT NULL ,
+                `AllowMultiple` BOOL NULL ,
+                `CreatorName` VARCHAR( 100 ) NOT NULL,
+                PRIMARY KEY (`QuestionnaireID`)
+            )ENGINE = INNODB;
+
+            CREATE TABLE IF NOT EXISTS  GWU_Question (
+                `Question_Number` INT NOT NULL ,
+                `QuestionnaireID` INT NOT NULL ,
+                `AnsType` VARCHAR( 100 ) NOT NULL ,
+                `Text` VARCHAR( 255 ) NOT NULL ,
+                `Mandatory` BOOL NOT NULL ,
+                PRIMARY KEY (  `Question_Number` , `QuestionnaireID` ),
+                FOREIGN KEY (`QuestionnaireID`) REFERENCES GWU_Questionnaire(`QuestionnaireID`)
+            )ENGINE = INNODB;
+
+   CREATE TABLE IF NOT EXISTS  GWU_Action (
+                `ActionID` INT( 11 ) NOT NULL ,
+                `QuestionnaireID` INT NOT NULL ,
+                `Question_Number` INT NOT NULL ,
+                `Sequence` INT NOT NULL ,
+                `ActionType` VARCHAR( 100 ) NOT NULL ,
+                `LinkToAction` VARCHAR( 200 ) NULL ,
+                `Content` VARCHAR( 255 ) NULL ,
+                `Duration` INT( 10 ) NOT NULL ,
+                PRIMARY KEY (  `ActionID` ,  `QuestionnaireID` ,  `Question_Number` ),
+                FOREIGN KEY (`QuestionnaireID`) REFERENCES GWU_Question(`QuestionnaireID`),
+                FOREIGN KEY (`Question_Number`) REFERENCES GWU_Question(`Question_Number`)
+            ) ENGINE = INNODB;
+
+            CREATE TABLE IF NOT EXISTS  GWU_AnswerChoice (
+                `OptionNumber` INT NOT NULL ,
+                `QuestionnaireID` INT NOT NULL ,
+                `Question_Number` INT NOT NULL ,
+                `AnsValue` VARCHAR( 255 ) NULL ,
+                PRIMARY KEY (  `OptionNumber` ,  `QuestionnaireID` ,  `Question_Number` ),
+                FOREIGN KEY (`QuestionnaireID`) REFERENCES GWU_Question(`QuestionnaireID`),
+                FOREIGN KEY (`Question_Number`) REFERENCES GWU_Question(`Question_Number`)
+            ) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS  GWU_Flag (
+                `FlagID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+                 `FlagName` VARCHAR( 100 ) NOT NULL ,
+                `FlagValue` VARCHAR( 100 ) NOT NULL
+            ) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS  GWU_FlagSet (
+                `FlagID` INT,
+                `QuestionnaireID` INT NOT NULL ,
+                `Question_Number` INT NOT NULL ,
+                `OptionNumber` INT NULL ,
+                PRIMARY KEY (   `FlagID`,`OptionNumber` ,  `QuestionnaireID` ,  `Question_Number` ),
+                 FOREIGN KEY (`QuestionnaireID`) REFERENCES GWU_AnswerChoice(`QuestionnaireID`),
+                FOREIGN KEY (`Question_Number`) REFERENCES GWU_AnswerChoice(`Question_Number`),
+                FOREIGN KEY (`OptionNumber`) REFERENCES GWU_AnswerChoice(`OptionNumber`),
+                FOREIGN KEY (`FlagID`) REFERENCES GWU_Flag(`FlagID`)
+            ) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS  GWU_FlagCheck (
+                `FlagID` INT,
+                `QuestionnaireID` INT NOT NULL ,
+                `Question_Number` INT NOT NULL ,
+                PRIMARY KEY (   `FlagID`,  `QuestionnaireID` ,  `Question_Number` ),
+                 FOREIGN KEY (`QuestionnaireID`) REFERENCES GWU_Question(`QuestionnaireID`),
+                FOREIGN KEY (`Question_Number`) REFERENCES GWU_Question(`Question_Number`),
+                FOREIGN KEY (`FlagID`) REFERENCES GWU_Flag(`FlagID`)
+            ) ENGINE = INNODB;
+
+
+CREATE TABLE IF NOT EXISTS  GWU_Session (
+                `SessionID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+                `User_name` VARCHAR( 100 ) NULL ,
+                `SurveyCompleted` BOOL NOT NULL ,
+                `Duration` TIME NOT NULL ,
+                `SurveyTakenDate` DATE NOT NULL ,
+                `IP` VARCHAR( 20 ) NOT NULL ,
+                `City` VARCHAR( 50 ) NULL,
+                `Country` VARCHAR( 50 ) NULL
+            ) ENGINE = INNODB;
+
+
+CREATE TABLE IF NOT EXISTS  GWU_Response (
+                `ResponceID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+                `SessionID` INT NOT NULL ,
+                `QuestionnaireID` INT NOT NULL ,
+                `Question_Number` INT NOT NULL ,
+                `AnswerNumber` INT NULL ,
+                `ResponceType` VARCHAR( 100 ) NULL ,
+                `ResponceContent` TEXT NULL ,
+                `CodeToProcessResponce` TEXT NULL ,
+                `ProcessingResult` TEXT NULL,
+                FOREIGN KEY (`QuestionnaireID`) REFERENCES GWU_Question(`QuestionnaireID`),
+                FOREIGN KEY (`Question_Number`) REFERENCES GWU_Question(`Question_Number`),
+                FOREIGN KEY (`AnswerNumber`) REFERENCES GWU_AnswerChoice(`OptionNumber`),
+                FOREIGN KEY (`SessionID`) REFERENCES GWU_Session(`SessionID`)
+            ) ENGINE = INNODB;

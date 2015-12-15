@@ -1,0 +1,29 @@
+System preference
+
+1) Are you looking for a laptop or desktop
+laptop  -if selected jump to question 2
+(laptop image) 
+desktop  -if selected jump to question 3
+(desktop image)
+(Both will be radio button)
+
+
+2) Why do you need laptop to do ?
+- Internet surfing
+- Engineering
+
+
+3) Why do you need desktop to do ?
+- Internet surfing
+- Engineering
+
+
+4) Do you need CD or DVD writer?
+- Yes
+- No
+
+5)Kindly rate our survey?
+NPS
+
+
+

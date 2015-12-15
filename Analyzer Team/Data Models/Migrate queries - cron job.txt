@@ -1,0 +1,60 @@
+
+INSERT INTO wp_respondee_dim(respondee_id, survey_completed, survey_taken_date, username, ip, duration)
+SELECT SessionID, SurveyCompleted, SurveyTakenDate, Username, IP, Duration
+FROM gwu_session
+WHERE surveytakendate = date_add(curdate(), interval -1 day) 
+;
+
+INSERT INTO wp_location_dim (city, country)
+SELECT distinct City, Country
+FROM gwu_session
+;
+
+
+INSERT INTO wp_question_dim (question_id, questionnaire_id, question_text, ans_type)
+
+SELECT gwu_question.questsequence, gwu_question.QuestionnaireID, gwu_question.text, AnsType
+
+FROM gwu_question, gwu_questionnaire
+
+WHERE gwu_questionnaire.QuestionnaireID = gwu_question.QuestionnaireID
+
+AND gwu_questionnaire.PublishDate = date_add(curdate(), interval -1 day) 
+;
+
+
+INSERT INTO wp_questionnaire_dim (questionnaire_id, topic, date_created, allow_anonymous, allow_multiple, title, creator_name)
+SELECT QuestionnaireID, Topic, DateCreated, AllowAnnonymous, AllowMultiple, Title, CreatorName
+FROM gwu_questionnaire
+WHERE PublishDate = date_add(curdate(), interval -1 day)
+;
+
+INSERT INTO wp_question_response (response_id, response_content, response_type, questionnaire_dim_questionnaire_id, question_dim_questionnaire_id, question_dim_question_id, respondee_dim_respondee_id)
+
+SELECT ResponseID, ResponseContent, ResponseType, QuestionnaireID, QuestionnaireID, QuestSequence, gwu_response.SessionID
+
+FROM gwu_response, gwu_session
+
+WHERE gwu_response.SessionID = gwu_session.SessionID
+
+AND SurveyTakenDate = date_add(curdate(), interval -1 day)
+
+;
+
+
+UPDATE wp_question_response SET
+time_dim_time_id = 
+(SELECT time_id
+FROM wp_time_dim, gwu_session
+WHERE wp_question_response.respondee_dim_respondee_id = gwu_session.SessionID
+AND wp_time_dim.date = gwu_session.SurveyTakenDate)
+;
+
+UPDATE wp_question_response SET
+location_dim_location_id = 
+(SELECT location_id
+FROM wp_location_dim, gwu_session
+WHERE wp_question_response.respondee_dim_respondee_id = gwu_session.SessionID
+AND wp_location_dim.country = gwu_session.Country
+AND wp_location_dim.city = gwu_session.city)
+;

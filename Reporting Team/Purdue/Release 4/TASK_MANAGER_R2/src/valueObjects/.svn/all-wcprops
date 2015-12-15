@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/14/trunk/%20gwu-db2-task-manager/TASK_MANAGER_R2/src/valueObjects
+END
+_Super_Task.as
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/!svn/ver/14/trunk/%20gwu-db2-task-manager/TASK_MANAGER_R2/src/valueObjects/_Super_Task.as
+END
+_TaskEntityMetadata.as
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/!svn/ver/14/trunk/%20gwu-db2-task-manager/TASK_MANAGER_R2/src/valueObjects/_TaskEntityMetadata.as
+END
+Task.as
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/14/trunk/%20gwu-db2-task-manager/TASK_MANAGER_R2/src/valueObjects/Task.as
+END
+_Super_User_account.as
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/!svn/ver/6/trunk/%20gwu-db2-task-manager/TASK_MANAGER_R2/src/valueObjects/_Super_User_account.as
+END
+_User_accountEntityMetadata.as
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/svn/!svn/ver/6/trunk/%20gwu-db2-task-manager/TASK_MANAGER_R2/src/valueObjects/_User_accountEntityMetadata.as
+END
+User_account.as
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/!svn/ver/6/trunk/%20gwu-db2-task-manager/TASK_MANAGER_R2/src/valueObjects/User_account.as
+END

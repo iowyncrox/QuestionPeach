@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/16/trunk/%20gwu-db2-task-manager/TASK_MANAGER_R2/src/services/taskservice
+END
+_Super_TaskService.as
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/svn/!svn/ver/16/trunk/%20gwu-db2-task-manager/TASK_MANAGER_R2/src/services/taskservice/_Super_TaskService.as
+END
+TaskService.as
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/!svn/ver/14/trunk/%20gwu-db2-task-manager/TASK_MANAGER_R2/src/services/taskservice/TaskService.as
+END

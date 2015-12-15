@@ -1,0 +1,452 @@
+
+<model xmlns="http://ns.adobe.com/Fiber/1.0">
+  <annotation name="ActionScriptGeneration">
+    <item name="FullyQualifyReferences">true</item>
+  </annotation>
+  <service name="TaskService">
+    <annotation name="ActionScriptGeneration">
+      <item name="Source">TaskService</item>
+      <item name="ServiceType">RemoteObject</item>
+      <item name="Package">services.taskservice</item>
+      <item name="Endpoint">gateway.php</item>
+      <item name="Destination">TaskService</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">PHP</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="PHP_RELATIVE_LOCATION">TASK_MANAGER_R2-debug/services/TaskService.php</item>
+      <item name="PHP_SERVER_ROOT">C:/wamp/www</item>
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="PHP_SERVICES_FOLDER">C:/wamp/www/TASK_MANAGER_R2-debug/services</item>
+      <item name="PHP_LOCATION">C:/wamp/www/TASK_MANAGER_R2-debug/services/TaskService.php</item>
+      <item name="LINKED_FILE">TaskService.php</item>
+      <item name="PHP_SERVER_ROOT_URL">http://localhost/</item>
+      <item name="ABSOLUTE_ENDPOINT">http://localhost/TASK_MANAGER_R2-debug/gateway.php</item>
+      <item name="PHP_CLASS_NAME">TaskService</item>
+    </annotation>
+    <function name="getAllTask" return-type="Task[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+    <function name="getTaskByID" return-type="Task">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="itemID" type="integer"/>
+    </function>
+    <function name="createTask" return-type="integer">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="item" type="Task"/>
+    </function>
+    <function name="updateTask" return-type="void">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="item" type="Task"/>
+    </function>
+    <function name="deleteTask" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque,opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="item1" type="opaque"/>
+      <parameter name="item2" type="opaque"/>
+    </function>
+    <function name="count" return-type="integer">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+    <function name="getTask_paged" return-type="Task[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque,opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="startIndex" type="integer"/>
+      <parameter name="numItems" type="integer"/>
+    </function>
+    <function name="updateTaskFinal" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="item" type="opaque"/>
+    </function>
+    <function name="delegatetask" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="item" type="opaque"/>
+    </function>
+    <function name="getAllComplete" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+    <function name="getAllActive" return-type="opaque[]">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+  </service>
+  <entity name="Task" persistent="true">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">Task</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">TaskService</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="DataManagement">
+      <item name="create">createTask</item>
+      <item name="update">updateTask</item>
+      <item name="get">getTaskByID</item>
+      <item name="fillFunc">getAllTask,getTask_paged</item>
+      <item name="managingService">TaskService</item>
+    </annotation>
+    <annotation name="getTaskByID">
+      <item name="propertySpecifier">TASK_ID,PARENT_TASK_ID,PRIORITY_NR,SHORT_TITLE_TX,SHORT_DESCRIPTION_TX,LONG_DESCRIPTION_TX,DEADLINE_DT,ESTIMATED_COMPLETION_DT,COMPLETION_DT,RECIPIENT_PERSON_ID,ASSIGNED_ORGANIZATION_ID,ASSIGNED_TO_PERSON_ID,ASSIGNED_BY_PERSON_ID,CREATED_BY_USER_NM,CREATED_DTTM,LAST_UPDATED_BY_USER_NM,LAST_UPDATED_DTTM</item>
+    </annotation>
+    <annotation name="getAllTask">
+      <item name="propertySpecifier">TASK_ID,PARENT_TASK_ID,PRIORITY_NR,SHORT_TITLE_TX,SHORT_DESCRIPTION_TX,LONG_DESCRIPTION_TX,DEADLINE_DT,ESTIMATED_COMPLETION_DT,COMPLETION_DT,RECIPIENT_PERSON_ID,ASSIGNED_ORGANIZATION_ID,ASSIGNED_TO_PERSON_ID,ASSIGNED_BY_PERSON_ID,CREATED_BY_USER_NM,CREATED_DTTM,LAST_UPDATED_BY_USER_NM,LAST_UPDATED_DTTM</item>
+    </annotation>
+    <annotation name="getTask_paged">
+      <item name="propertySpecifier">TASK_ID,PARENT_TASK_ID,PRIORITY_NR,SHORT_TITLE_TX,SHORT_DESCRIPTION_TX,LONG_DESCRIPTION_TX,DEADLINE_DT,ESTIMATED_COMPLETION_DT,COMPLETION_DT,RECIPIENT_PERSON_ID,ASSIGNED_ORGANIZATION_ID,ASSIGNED_TO_PERSON_ID,ASSIGNED_BY_PERSON_ID,CREATED_BY_USER_NM,CREATED_DTTM,LAST_UPDATED_BY_USER_NM,LAST_UPDATED_DTTM</item>
+      <item name="pagingEnabled">true</item>
+      <item name="positionalPagingParameters">true</item>
+      <item name="countOperation">count</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <id name="TASK_ID" type="integer"/>
+    <property name="PARENT_TASK_ID" type="integer"/>
+    <property name="PRIORITY_NR" type="integer"/>
+    <property name="SHORT_TITLE_TX" type="string"/>
+    <property name="SHORT_DESCRIPTION_TX" type="string"/>
+    <property name="LONG_DESCRIPTION_TX" type="string"/>
+    <property name="DEADLINE_DT" type="date"/>
+    <property name="ESTIMATED_COMPLETION_DT" type="date"/>
+    <property name="COMPLETION_DT" type="date"/>
+    <property name="RECIPIENT_PERSON_ID" type="integer"/>
+    <property name="ASSIGNED_ORGANIZATION_ID" type="integer"/>
+    <property name="ASSIGNED_TO_PERSON_ID" type="integer"/>
+    <property name="ASSIGNED_BY_PERSON_ID" type="integer"/>
+    <property name="CREATED_BY_USER_NM" type="string"/>
+    <property name="CREATED_DTTM" type="date"/>
+    <property name="LAST_UPDATED_BY_USER_NM" type="string"/>
+    <property name="LAST_UPDATED_DTTM" type="date"/>
+  </entity>
+  <service name="UseraccountService">
+    <annotation name="ActionScriptGeneration">
+      <item name="Source">UseraccountService</item>
+      <item name="ServiceType">RemoteObject</item>
+      <item name="Package">services.useraccountservice</item>
+      <item name="Endpoint">gateway.php</item>
+      <item name="Destination">UseraccountService</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">PHP</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="PHP_RELATIVE_LOCATION">TASK_MANAGER_R2-debug/services/UseraccountService.php</item>
+      <item name="PHP_SERVER_ROOT">C:\wamp\www</item>
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="PHP_SERVICES_FOLDER">C:\wamp\www\TASK_MANAGER_R2-debug\services</item>
+      <item name="PHP_LOCATION">C:/wamp/www/TASK_MANAGER_R2-debug/services/UseraccountService.php</item>
+      <item name="LINKED_FILE">UseraccountService.php</item>
+      <item name="PHP_SERVER_ROOT_URL">http://localhost/</item>
+      <item name="ABSOLUTE_ENDPOINT">http://localhost/TASK_MANAGER_R2-debug/gateway.php</item>
+      <item name="PHP_CLASS_NAME">UseraccountService</item>
+    </annotation>
+    <function name="getAllUser_account" return-type="User_account[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+    <function name="getUser_accountByID" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque,opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="itemID1" type="opaque"/>
+      <parameter name="itemID2" type="opaque"/>
+    </function>
+    <function name="createUser_account" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="item" type="User_account"/>
+    </function>
+    <function name="updateUser_account" return-type="void">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="item" type="User_account"/>
+    </function>
+    <function name="deleteUser_account" return-type="void">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="itemID" type="string"/>
+    </function>
+    <function name="count" return-type="integer">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+    <function name="getUser_account_paged" return-type="User_account[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque,opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="startIndex" type="integer"/>
+      <parameter name="numItems" type="integer"/>
+    </function>
+    <function name="getPersonID" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="item1" type="opaque"/>
+    </function>
+  </service>
+  <entity name="User_account" persistent="true">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">User_account</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">UseraccountService</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="DataManagement">
+      <item name="create">createUser_account</item>
+      <item name="update">updateUser_account</item>
+      <item name="delete">deleteUser_account</item>
+      <item name="fillFunc">getAllUser_account,getUser_account_paged</item>
+      <item name="managingService">UseraccountService</item>
+    </annotation>
+    <annotation name="getAllUser_account">
+      <item name="propertySpecifier">USER_NM,PASSWORD_TX,PERSON_ID,SECURITY_QUESTION_TX,SECURITY_QUESTION_RESPONSE_TX,END_DT</item>
+    </annotation>
+    <annotation name="getUser_account_paged">
+      <item name="propertySpecifier">USER_NM,PASSWORD_TX,PERSON_ID,SECURITY_QUESTION_TX,SECURITY_QUESTION_RESPONSE_TX,END_DT</item>
+      <item name="pagingEnabled">true</item>
+      <item name="positionalPagingParameters">true</item>
+      <item name="countOperation">count</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <id name="USER_NM" type="string"/>
+    <property name="PASSWORD_TX" type="string"/>
+    <property name="PERSON_ID" type="integer"/>
+    <property name="SECURITY_QUESTION_TX" type="string"/>
+    <property name="SECURITY_QUESTION_RESPONSE_TX" type="string"/>
+    <property name="END_DT" type="date"/>
+  </entity>
+  <service name="PersonService">
+    <annotation name="ActionScriptGeneration">
+      <item name="Source">PersonService</item>
+      <item name="ServiceType">RemoteObject</item>
+      <item name="Package">services.personservice</item>
+      <item name="Endpoint">gateway.php</item>
+      <item name="Destination">PersonService</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">PHP</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="PHP_RELATIVE_LOCATION">TASK_MANAGER_R2-debug/services/PersonService.php</item>
+      <item name="PHP_SERVER_ROOT">C:/wamp/www</item>
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="PHP_SERVICES_FOLDER">C:/wamp/www/TASK_MANAGER_R2-debug/services</item>
+      <item name="PHP_LOCATION">C:/wamp/www/TASK_MANAGER_R2-debug/services/PersonService.php</item>
+      <item name="LINKED_FILE">PersonService.php</item>
+      <item name="PHP_SERVER_ROOT_URL">http://localhost/</item>
+      <item name="ABSOLUTE_ENDPOINT">http://localhost/TASK_MANAGER_R2-debug/gateway.php</item>
+      <item name="PHP_CLASS_NAME">PersonService</item>
+    </annotation>
+    <function name="count" return-type="integer">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+    <function name="createPerson" return-type="integer">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="item" type="Person"/>
+    </function>
+    <function name="deletePerson" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="itemID" type="opaque"/>
+    </function>
+    <function name="getAllPerson" return-type="Person[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+    <function name="getPerson_paged" return-type="Person[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque,opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="startIndex" type="integer"/>
+      <parameter name="numItems" type="integer"/>
+    </function>
+    <function name="getPersonByID" return-type="Person">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="itemID" type="integer"/>
+    </function>
+    <function name="updatePerson" return-type="void">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">opaque</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="item" type="Person"/>
+    </function>
+  </service>
+  <entity name="Person" persistent="true">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">Person</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">PersonService</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="DataManagement">
+      <item name="create">createPerson</item>
+      <item name="update">updatePerson</item>
+      <item name="get">getPersonByID</item>
+      <item name="fillFunc">getAllPerson,getPerson_paged</item>
+      <item name="managingService">PersonService</item>
+    </annotation>
+    <annotation name="getPersonByID">
+      <item name="propertySpecifier">PERSON_ID,FIRST_NM,LAST_NM,EMAIL_ADDRESS_TX,PHONE_NUMBER_TX,CREATED_BY_USER_NM,CREATED_DTTM,LAST_UPDATED_BY_USER_NM,LAST_UPDATED_DTTM</item>
+    </annotation>
+    <annotation name="getAllPerson">
+      <item name="propertySpecifier">PERSON_ID,FIRST_NM,LAST_NM,EMAIL_ADDRESS_TX,PHONE_NUMBER_TX,CREATED_BY_USER_NM,CREATED_DTTM,LAST_UPDATED_BY_USER_NM,LAST_UPDATED_DTTM</item>
+    </annotation>
+    <annotation name="getPerson_paged">
+      <item name="propertySpecifier">PERSON_ID,FIRST_NM,LAST_NM,EMAIL_ADDRESS_TX,PHONE_NUMBER_TX,CREATED_BY_USER_NM,CREATED_DTTM,LAST_UPDATED_BY_USER_NM,LAST_UPDATED_DTTM</item>
+      <item name="pagingEnabled">true</item>
+      <item name="positionalPagingParameters">true</item>
+      <item name="countOperation">count</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <id name="PERSON_ID" type="integer"/>
+    <property name="FIRST_NM" type="string"/>
+    <property name="LAST_NM" type="string"/>
+    <property name="EMAIL_ADDRESS_TX" type="string"/>
+    <property name="PHONE_NUMBER_TX" type="string"/>
+    <property name="CREATED_BY_USER_NM" type="string"/>
+    <property name="CREATED_DTTM" type="date"/>
+    <property name="LAST_UPDATED_BY_USER_NM" type="string"/>
+    <property name="LAST_UPDATED_DTTM" type="date"/>
+  </entity>
+</model>

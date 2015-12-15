@@ -1,0 +1,25 @@
+CREATE PROCEDURE my_task_list 
+    (p_username VARCHAR(30))
+BEGIN
+
+    DECLARE v_dummy INT;
+    DECLARE v_parent_task_id, v_child_task_id INT;
+    DECLARE v_deleted_short_title_tx, v_parent_short_title_tx VARCHAR(50); 
+        
+	
+	SELECT PERSON_ID
+	INTO v_dummy
+	FROM user_account
+	WHERE USER_NM=p_username;
+	
+    -- Find the parent task of the task we want to delete
+    SELECT t.task_id, t.parent_task_id, t.priority_nr, t.short_title_tx, t.short_description_tx, t.long_description_tx, t.deadline_dt,
+	 t.estimated_completion_dt, org.organization_nm, concat(p.first_nm," ",p.last_nm)
+    FROM task t
+    JOIN organization org
+      ON  t.ASSIGNED_ORGANIZATION_ID = org.ORGANIZATION_ID
+    JOIN person p
+	  ON p.PERSON_ID = t.ASSIGNED_BY_PERSON_ID
+	  WHERE t.ASSIGNED_TO_PERSON_ID=v_dummy;
+
+END$$

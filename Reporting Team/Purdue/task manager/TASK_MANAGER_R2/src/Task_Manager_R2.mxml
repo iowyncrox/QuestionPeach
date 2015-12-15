@@ -1,0 +1,2069 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:taskservice="services.taskservice.*"
+			   xmlns:valueObjects="valueObjects.*"
+			   xmlns:useraccountservice="services.useraccountservice.*"
+			   xmlns:logintestservice="services.logintestservice.*"
+			   xmlns:organizationservice="services.organizationservice.*"
+			   xmlns:taskcomment="services.taskcomment.*"
+			   xmlns:personservice="services.personservice.*"
+			   creationComplete="application_creationCompleteHandler(event)" currentState="Login"
+			   pageTitle="GWtodo" skinClass="skins.ApplicationScrollerSkin"
+			   width.Account_Details="100%" height.Account_Details="100%"
+			   width.Active="100%" height.Active="100%"
+			   width.AssignedBy="100%" height.AssignedBy="100%"
+			   width.AssignedTo="100%" height.AssignedTo="100%"
+			   width.Change_Password="100%" height.Change_Password="100%"
+			   width.Complete="100%" height.Complete="100%"
+			   width.Create_Subtask="100%" height.Create_Subtask="100%"
+			   width.Create_Task="100%" height.Create_Task="100%"
+			   width.Delegate_Task_Display="100%" height.Delegate_Task_Display="100%"
+			   width.Display_Task="100%" height.Display_Task="100%"
+			   width.Edit_Profile="100%" height.Edit_Profile="100%"
+			   width.Login="100%" height.Login="100%"
+			   width.Overdue="100%" height.Overdue="100%"
+			   width.Reassign_Task_Form="100%" height.Reassign_Task_Form="100%"
+			   width.Signup="100%" height.Signup="100%"
+			   width.Task_Home="100%" height.Task_Home="100%"
+			   width.Task_View="100%" height.Task_View="100%"
+			   width.Update_Task_Display="100%" height.Update_Task_Display="100%"
+			   width.Update_Task_Form="100%" height.Update_Task_Form="100%"
+			   width.view_group="100%" height.view_group="100%"
+			   width.Views="100%" height.Views="100%">
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import com.adobe.serializers.utility.TypeUtility;
+			
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.olap.aggregators.CountAggregator;
+			import mx.rpc.events.ResultEvent;
+			import mx.skins.halo.PopUpIcon;
+			import mx.utils.OnDemandEventDispatcher;
+			
+			import spark.events.GridSelectionEvent;
+			import spark.events.PopUpEvent;
+			
+			import valueObjects.User_account;
+						
+			protected var res:int =0;
+		//	public var foo:String;
+			
+			
+			//Code for Login functionality resumes
+			protected function loginbutton_clickHandler(event:MouseEvent):void
+			{
+				getUser_accountByIDResult.token = useraccountService.getUser_accountByID(usernameTextInput.text,passwordTextInput.text);
+				getUser_accountByIDResult.addEventListener(ResultEvent.RESULT,getUser_accountByIDResult_resultHandler);
+			}
+			
+			protected function getUser_accountByIDResult_resultHandler(event:ResultEvent):void
+			{
+				res=parseInt(getUser_accountByIDResult.lastResult);
+				getUser_accountByIDResult.removeEventListener(ResultEvent.RESULT,getUser_accountByIDResult_resultHandler);
+				CursorManager.removeBusyCursor();
+				if (res==1)		
+				{
+					res=0;
+					currentState="Task_Home";
+					CursorManager.removeBusyCursor();
+					
+				}
+				else
+				{
+					CursorManager.removeBusyCursor();
+					user_account.USER_NM='';
+					user_account.PASSWORD_TX='';
+					callloginfailure();
+				}
+				getUser_accountByIDResult.token = null;
+				getUser_accountByIDResult.removeEventListener(ResultEvent.RESULT,getUser_accountByIDResult_resultHandler);
+				
+			}
+			
+			protected function callloginfailure():void
+			{
+				Alert.show("Invalid Login");
+				currentState="Login";
+			}
+
+					
+			//Code for TASK functionality resumes
+			protected function dataGrid_creationCompleteHandler(event:FlexEvent):void
+			{
+				getAllTASKResult.token = tASKService.getAllTask();
+			}
+			
+			protected function viewtask_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				getAllTASKResult.token = tASKService.getAllTask();
+				currentState = "Display_Task";
+				//tASKService.commit();
+			}
+			
+			
+			protected function button_clickHandler(event:MouseEvent):void
+			{
+				var tASK2:Task = new Task();
+				tASK2.PARENT_TASK_ID = 0; //passing a default value which will not be used
+				tASK2.priority_nr = comboBox.selectedIndex + 1;//parseInt(pRIORITY_NRTextInput.text);
+				tASK2.SHORT_TITLE_TX = sHORT_TITLE_TXTextInput.text;
+				tASK2.SHORT_DESCRIPTION_TX = sHORT_DESCRIPTION_TXTextInput.text;
+				tASK2.LONG_DESCRIPTION_TX = lONG_DESCRIPTION_TXTextInput.text;
+				tASK2.DEADLINE_DT = dEADLINE_DTDateField.selectedDate;
+				tASK2.ESTIMATED_COMPLETION_DT = eSTIMATED_COMPLETION_DTDateField.selectedDate;
+				tASK2.COMPLETION_DT = null;
+				tASK2.RECIPIENT_PERSON_ID = comboboxrecipient.selectedIndex + 1//parseInt(rECIPIENT_PERSON_IDTextInput.text);
+				tASK2.ASSIGNED_ORGANIZATION_ID = comboboxassignorg.selectedIndex + 1; //parseInt(aSSIGNED_ORGANIZATION_IDTextInput.text);
+				tASK2.ASSIGNED_TO_PERSON_ID = comboboxassignto.selectedIndex + 1;//parseInt(aSSIGNED_TO_PERSON_IDTextInput.text);
+				tASK2.ASSIGNED_BY_PERSON_ID = 0; //passing a default value which will not be used
+				tASK2.CREATED_BY_USER_NM = usernameTextInput.text;
+				tASK2.CREATED_DTTM = null;
+				tASK2.LAST_UPDATED_BY_USER_NM = usernameTextInput.text;
+				tASK2.LAST_UPDATED_DTTM = null;
+				
+				if(tASK2.DEADLINE_DT.getTime() < tASK2.ESTIMATED_COMPLETION_DT.getTime())
+				{
+					Alert.show("Estimated Completion Date should ideally be before in time than Deadline Date");
+				}
+				createTASKResult.token = tASKService.createTask(tASK2);
+				
+				
+				//returned by the Java class method
+				tASKService.commit();
+				createTASKResult.token=null;
+				Alert.show("Tasks Created Successfully");	
+				
+				getAllTASKResult.token = tASKService.getAllTask();
+				currentState = "Display_Task";
+				//emailNotifyResult.token = tASKService.emailNotify();
+			}
+			
+			protected function createtask_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Create_Task";	
+			}
+			
+			
+			protected function application_creationCompleteHandler(event:FlexEvent):void
+			{
+				countResult.token = tASKService.count();
+			}
+			
+			protected function reportingcall_clickHandler(event:MouseEvent):void
+			{
+				var usernm:String;
+				usernm= usernameTextInput.text;
+				getTaskByIDResult2.token = tASKService.getTaskByID(usernm);
+				currentState="Views";
+			}
+			
+			protected function delegateTask_clickHandler(event:MouseEvent):void
+			{
+				currentState="Delegate_Task_Display";
+				tASKService.commit();
+			}
+			
+			protected function updateTask_clickHandler(event:MouseEvent):void
+			{
+				currentState="Update_Task_Display";
+			}
+			
+			
+			protected function transfertotask_clickHandler(event:MouseEvent):void
+			{
+				currentState="Task_Home";
+				
+			}
+			
+			protected function redirectocreate_clickHandler(event:MouseEvent):void
+			{
+				currentState="Create_Task";
+			}
+			
+			protected function returntohome_clickHandler(event:MouseEvent):void
+			{
+				currentState="Task_Home";	
+			}
+			
+			protected function gwtodocreatebutton_clickHandler(event:MouseEvent):void
+			{
+				currentState="Task_Home";
+			}
+			
+			protected function Subtaskcreatebtn_clickHandler(event:MouseEvent):void
+			{
+				var tASK2:Task = new Task();
+				tASK2.PARENT_TASK_ID = parseInt(pARENTTASKTextInput0.text);
+				tASK2.priority_nr = comboBoxprio.selectedIndex + 1;//parseInt(pRIORITY_NRTextInput0.text);
+				tASK2.SHORT_TITLE_TX = sHORT_TITLE_TXTextInput0.text;
+				tASK2.SHORT_DESCRIPTION_TX = sHORT_DESCRIPTION_TXTextInput0.text;
+				tASK2.LONG_DESCRIPTION_TX = lONG_DESCRIPTION_TXTextInput0.text;
+				tASK2.DEADLINE_DT = dEADLINE_DTDateField0.selectedDate;
+				tASK2.ESTIMATED_COMPLETION_DT = eSTIMATED_COMPLETION_DTDateField0.selectedDate;
+				tASK2.COMPLETION_DT = null;
+				tASK2.RECIPIENT_PERSON_ID = comboboxsubrecipient.selectedIndex + 1;//parseInt(rECIPIENT_PERSON_IDTextInput0.text);
+				tASK2.ASSIGNED_ORGANIZATION_ID = comboboxsubassignorg.selectedIndex + 1;//parseInt(aSSIGNED_ORGANIZATION_IDTextInput0.text);
+				tASK2.ASSIGNED_TO_PERSON_ID = comboboxsubassignto.selectedIndex + 1;//parseInt(aSSIGNED_TO_PERSON_IDTextInput0.text);
+				tASK2.ASSIGNED_BY_PERSON_ID = 0; //passing a default value that will not be used
+				tASK2.CREATED_BY_USER_NM = usernameTextInput.text;
+				tASK2.CREATED_DTTM = null;
+				tASK2.LAST_UPDATED_BY_USER_NM = usernameTextInput.text;
+				tASK2.LAST_UPDATED_DTTM = null;
+				
+				if(tASK2.DEADLINE_DT.getTime() < tASK2.ESTIMATED_COMPLETION_DT.getTime())
+				{
+					Alert.show("Estimated Completion Date should ideally be before in time than Deadline Date");
+				}
+				
+				createTASKResult.token = tASKService.createTask(tASK2);
+				
+				//returned by the Java class method
+				tASKService.commit(); 
+				Alert.show("Subtask successfully created");
+				
+				getAllTASKResult.token = tASKService.getAllTask();
+				currentState = "Display_Task";
+			}
+			
+			protected function Subtaskgwtodobtn_clickHandler(event:MouseEvent):void
+			{
+				currentState="Task_Home";
+			}
+			
+			public function checkAnswer(event:MouseEvent):void
+			{
+				currentState="Create_Subtask";
+			}
+			
+			public var assignsubtaskbutton:spark.components.Button;
+			
+			protected function dataGrid_selectionChangeHandler(event:GridSelectionEvent):void
+			{
+				assignsubtaskbutton = new spark.components.Button();
+				assignsubtaskbutton.label = "Assign Subtask";
+				btngroup.addElement(assignsubtaskbutton);
+				assignsubtaskbutton.addEventListener("click", checkAnswer);
+			}
+			
+			
+			
+			//TASK PROCESSING TEAM CODE for RELEASE 3
+			
+			protected function dataGridDisplay_creationCompleteHandler(event:FlexEvent):void
+			{
+				//getAllTASKResult.token = tASKService.getAllTask();
+				//getAllTaskResult7.token = tASKService.getAllTask();
+				getAllTaskResult8.token = tASKService.getAllTask();
+			}
+			
+			
+			protected function dataGridUpdateFinal_selectionChangeHandler(event:GridSelectionEvent):void
+			{
+				currentState="Update_Task_Form";
+				tASKService.commit();
+			}
+			
+			protected function panel_creationCompleteHandler(event:FlexEvent):void
+			{
+				//getAllTaskResult.token = tASKService.getAllTask();
+				//getAllTaskResult2.token = tASKService.getAllTask();
+			}
+			
+			
+			//SE Team code for update task
+			protected function updatetaskbutton_clickHandler(event:MouseEvent):void
+			{
+			var task6:Task = new Task();
+			task6.TASK_ID = parseInt(tASK_IDTextInput.text);
+			task6.ASSIGNED_TO_PERSON_ID = comboboxupdateassignto.selectedIndex + 1;//parseInt(aSSIGNED_TO_PERSON_IDTextInput2.text);
+			task6.LAST_UPDATED_BY_USER_NM = usernameTextInput.text;
+			task6.PARENT_TASK_ID=parseInt(pARENT_TASK_IDTextInput.text);
+			task6.priority_nr = comboBoxupdateprio.selectedIndex + 1;//parseInt(pRIORITY_NRTextInput2.text);
+			task6.SHORT_TITLE_TX = sHORT_TITLE_TXTextInput2.text;
+			task6.SHORT_DESCRIPTION_TX = sHORT_DESCRIPTION_TXTextInput2.text;
+			task6.LONG_DESCRIPTION_TX = lONG_DESCRIPTION_TXTextInput2.text;
+			task6.DEADLINE_DT = dEADLINE_DTDateField2.selectedDate;
+			task6.ESTIMATED_COMPLETION_DT = eSTIMATED_COMPLETION_DTDateField2.selectedDate;
+			task6.COMPLETION_DT = cOMPLETION_DTDateField.selectedDate;
+			task6.RECIPIENT_PERSON_ID = comboboxupdaterecipient.selectedIndex + 1;//parseInt(rECIPIENT_PERSON_IDTextInput2.text);
+			task6.ASSIGNED_ORGANIZATION_ID = comboboxupdateassignorg.selectedIndex + 1;//parseInt(aSSIGNED_ORGANIZATION_IDTextInput2.text);
+			
+			
+			if(task6.DEADLINE_DT.getTime() < task6.ESTIMATED_COMPLETION_DT.getTime())
+			{
+				Alert.show("Estimated Completion Date should ideally be before in time than Deadline Date");
+			}
+			
+			updateTaskFinalResult.token = tASKService.updateTaskFinal(task6);
+			tASKService.commit();		
+			Alert.show("Task Updated Successfully");
+			
+			getAllTASKResult.token = tASKService.getAllTask();
+			currentState = "Display_Task";
+			}
+			
+			protected function delegate_clickHandler(event:MouseEvent):void
+			{
+				task7.TASK_ID = parseInt(tASK_IDTextInput2.text);
+				task7.ASSIGNED_TO_PERSON_ID = comboboxreassignto.selectedIndex + 1;//parseInt(aSSIGNED_TO_PERSON_IDTextInput3.text);
+				task7.LAST_UPDATED_BY_USER_NM = lAST_UPDATED_BY_USER_NMTextInput.text;
+				
+				delegatetaskResult4.token = tASKService.delegatetask(task7);
+				//delegatetaskResult5.token = tASKService.delegatetask(task7);
+				tASKService.commit();
+				Alert.show("Task Delegation successfull");
+				getAllTASKResult.token = tASKService.getAllTask();
+				currentState = "Display_Task";
+			}
+			
+			
+			protected function dataGrid3_creationCompleteHandler(event:FlexEvent):void
+			{
+				getAllTaskResult5.token = tASKService.getAllTask();
+			//	getAllTaskResult6.token = tASKService.getAllTask();
+			}
+			
+			
+			protected function dataGrid3_selectionChangeHandler(event:GridSelectionEvent):void
+			{
+				currentState="Reassign_Task_Form";
+			}
+			
+			
+			protected function delegateTaskgwtodoButton_clickHandler(event:MouseEvent):void
+			{
+				currentState="Task_Home";
+			}
+			
+			
+			//REPORTING TEAM CODE for RELEASE 3 and RELEASE 4
+			protected function activetsk_creationCompleteHandler(event:FlexEvent):void
+			{
+				var usernm:String;
+				usernm= usernameTextInput.text;
+				getAllActiveResult2.token = tASKService.getAllActive(usernm);
+			}
+			
+			protected function compdt_creationCompleteHandler(event:FlexEvent):void
+			{
+				var usernm:String;
+				usernm= usernameTextInput.text;
+				getAllCompleteResult3.token = tASKService.getAllComplete(usernm);
+			}
+			
+			
+			protected function linkbutton1_clickHandler(event:MouseEvent):void
+			{
+				currentState="Task_Home";
+			}
+			
+			
+			protected function linkbutton2_clickHandler(event:MouseEvent):void
+			{
+				currentState="Complete";	
+			}
+			
+			protected function linkbutton3_clickHandler(event:MouseEvent):void
+			{
+				currentState="Active";
+			}
+			
+			protected function linkbutton4_clickHandler(event:MouseEvent):void
+			{
+				var usernm:String;
+				usernm= usernameTextInput.text;
+				getTaskByIDResult2.token = tASKService.getTaskByID(usernm);
+				currentState="Views";
+			}
+			
+			protected function tasks_creationCompleteHandler(event:FlexEvent):void
+			{
+				
+				getAllTaskResult.token = tASKService.getAllTask();
+			}
+			
+			
+			protected function returntogwtodobutton_clickHandler(event:MouseEvent):void
+			{
+				currentState="Task_Home";
+			}
+			
+			protected function Taskcreatebutton_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Create_Task";
+			}
+			
+			protected function gwtodoupdatebutton_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Task_Home";
+			}
+			
+			protected function Delegatedisplaycancel_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Task_Home";
+			}
+			
+			protected function UpdateTaskDisplayCancel_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Task_Home";
+			}
+			
+			
+			
+			//Release 4 code
+			protected function deletetaskbtn_clickHandler(event:MouseEvent):void
+			{
+				deleteTaskResult.token = tASKService.deleteTask(dataGrid.selectedItem.TASK_ID, usernameTextInput.text);
+				currentState = "Display_Task";
+			}
+			
+			
+			protected function linkbutton5_clickHandler(event:MouseEvent):void
+			{
+				currentState="Overdue";	
+			}
+			
+			protected function pasttask_creationCompleteHandler(event:FlexEvent):void
+			{
+				var usernm:String;
+				usernm= usernameTextInput.text;
+				getOverdueResult2.token = tASKService.getOverdue(usernm);
+			}
+			
+			
+			/*protected function PRIORITY_creationCompleteHandler(event:FlexEvent):void
+			{
+				
+				//getTASKByIDResult.token = tASKService.getTaskByID(usernameTextInput.text);
+				currentState="Views"
+				//tASKService.commit();
+			}
+			*/
+			protected function createorg_clickHandler(event:MouseEvent):void
+			{
+				var organization2:Organization = new Organization();
+				organization2.PARENT_ORGANIZATION_ID = null;
+				organization2.ORGANIZATION_NM = oRGANIZATION_NMTextInput.text;
+				organization2.ORGANIZATION_SHORT_TITLE_TX = oRGANIZATION_SHORT_TITLE_TXTextInput.text;
+				organization2.CREATED_BY_USER_NM = usernameTextInput.text;
+				organization2.CREATED_DTTM = null;
+				organization2.LAST_UPDATED_BY_USER_NM = null;
+				organization2.LAST_UPDATED_DTTM = null;
+				
+				createOrganizationResult.token = organizationService.createOrganization(organization2);
+				organizationService.commit();
+				Alert.show("Group created successfully");
+				
+				getAllGroupResult.token = organizationService.getOrganizationByName(usernameTextInput.text);
+				currentState="view_group";	
+			}
+			
+			protected function creategrp_clickHandler(event:MouseEvent):void
+			{
+				currentState="Create_Org";
+			}
+			
+			protected function cancelorgcreate_clickHandler(event:MouseEvent):void
+			{
+				currentState="Task_Home";
+			}
+			
+			protected function gotoviewgrp_clickHandler(event:MouseEvent):void
+			{
+				currentState="view_group";
+			}
+			
+			protected function disp_grp_creationCompleteHandler(event:FlexEvent):void
+			{
+				
+				getAllGroupResult.token = organizationService.getOrganizationByName(usernameTextInput.text);
+			}
+			
+			
+			protected function returnfromgrp_clickHandler(event:MouseEvent):void
+			{
+				currentState="Task_Home";	
+			}
+			
+			
+			//Reporting Team code for Release 5
+			protected function linkbutton6_clickHandler(event:MouseEvent):void
+			{
+				currentState="Risk_Task";
+				
+			}
+			
+			protected function linkbutton7_clickHandler(event:MouseEvent):void
+			{
+				currentState="Time_Task";
+				
+			}
+			
+			protected function risk_creationCompleteHandler(event:FlexEvent):void
+			{
+				var usernm:String;
+				usernm= usernameTextInput.text;
+				getAtRiskResult.token = tASKService.getAtRisk(usernm);
+			}
+			
+			
+			protected function time_creationCompleteHandler(event:FlexEvent):void
+			{
+				var usernm:String;
+				usernm= usernameTextInput.text;
+				getOnTimeResult.token = tASKService.getOnTime(usernm);
+			}
+			
+			
+			protected function Views_changeHandler(event:ListEvent):void
+			{
+				currentState="Task_View";
+				
+			}
+			
+			
+			protected function Views_creationCompleteHandler(event:FlexEvent):void
+			{
+				var usernm:String;
+				usernm= usernameTextInput.text;				
+				getTaskByIDResult2.token = tASKService.getTaskByID(usernm);
+			}
+			
+			
+			protected function dataGrid2_creationCompleteHandler(event:FlexEvent):void
+			{
+				getCommentByIDResult.token = taskcomment.getCommentByID(view.selectedItem.TASK_ID);			
+			}
+			
+			
+			protected function linkbutton9_clickHandler(event:MouseEvent):void
+			{
+				currentState="Views";
+				
+			}
+			
+			
+			protected function createanothergroup_clickHandler(event:MouseEvent):void
+			{
+				currentState="create_org";
+			}
+			
+			
+			//Sign up code
+			protected function signuplbl_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Signup";
+			}
+			
+			protected function submitaccount_clickHandler(event:MouseEvent):void
+			{
+				var person:Person = new Person();
+				//var personid:String;
+				person.FIRST_NM = fIRST_NMTextInput.text;
+				person.LAST_NM = lAST_NMTextInput.text;
+				person.EMAIL_ADDRESS_TX = eMAIL_ADDRESS_TXTextInput.text;
+				person.PHONE_NUMBER_TX = pHONE_NUMBER_TXTextInput.text;
+				person.CREATED_BY_USER_NM = "SYSTEM";
+				person.LAST_UPDATED_BY_USER_NM = null;
+				person.LAST_UPDATED_DTTM = null;
+				
+				if(eMAIL_ADDRESS_TXTextInput.text == "")
+				{
+					Alert.show("Please enter a valid email address");
+				}
+				else
+					if(lAST_NMTextInput.text =="" || fIRST_NMTextInput.text == "" || pHONE_NUMBER_TXTextInput.text == "")
+					{
+						Alert.show("Please enter all the required details");
+					}
+					else
+					{
+						createPersonResult.token = PERSONService.createPerson(person);
+						PERSONService.commit();
+						createPersonResult.addEventListener(ResultEvent.RESULT, createPersonResult_resultHandler);
+					}
+			}
+
+			protected function createPersonResult_resultHandler(event:ResultEvent):void
+			{
+				var personid:int;
+				personid = parseInt(createPersonResult.lastResult);
+				createPersonResult.removeEventListener(ResultEvent.RESULT,createPersonResult_resultHandler);
+				createPersonResult.token=null;
+				
+				var user_account1:User_account = new User_account();
+				user_account1.USER_NM = uSER_NMTextInput.text;
+				user_account1.PASSWORD_TX = pASSWORD_TXTextInput.text;
+				user_account1.PERSON_ID = personid;
+				user_account1.SECURITY_QUESTION_TX = sECURITY_QUESTION_TXTextInput.text;
+				user_account1.SECURITY_QUESTION_RESPONSE_TX = sECURITY_QUESTION_RESPONSE_TXTextInput.text;
+				user_account1.END_DT = null;
+				if(uSER_NMTextInput.text == "" || pASSWORD_TXTextInput.text == "" || sECURITY_QUESTION_TXTextInput.text == "" ||sECURITY_QUESTION_RESPONSE_TXTextInput.text == "")
+				{
+					Alert.show("Please enter all the required fields");
+				}
+				else
+				{
+					createUseraccountResult.token = useraccountService2.createUser_account(user_account1);
+					useraccountService2.commit();
+					Alert.show("Account created successfully");
+					currentState = "Login";
+				}
+			}
+			
+			
+			protected function cancelsignup_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Login";	
+			}
+			
+			
+			protected function editprof_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Change_Password";				
+			}
+			
+			protected function accountdet_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Change_Password";				
+			}
+			
+			protected function editProfileCancelbtn_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Account_Details";
+			}
+			
+			protected function profileEditbtn_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Edit_Profile";
+			}
+			
+			protected function profileCancelbtn_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Task_Home";
+			}
+			
+			protected function deleteprofilebtn_clickHandler(event:MouseEvent):void
+			{
+				var personid:String;
+				personid = foo;
+				//Alert.show(personid);
+				Alert.show(foo);
+				var deleteProfile:Person = new Person();
+				//personedit.FIRST_NM = fIRST_NMTextInput1.text;
+				//personedit.LAST_NM = lAST_NMTextInput1.text;
+				//personedit.EMAIL_ADDRESS_TX = eMAIL_ADDRESS_TXTextInput1.text;
+				//personedit.PHONE_NUMBER_TX = pHONE_NUMBER_TXTextInput1.text;
+				deleteProfile.PERSON_ID = parseInt(personid);
+				DeleteProfileResult.token = PERSONService.deletePerson(deleteProfile.PERSON_ID);
+				PERSONService.commit();	
+			}
+			
+			
+			protected function editProfileSavebtn_clickHandler(event:MouseEvent):void
+			{
+				var personid:String;
+				personid = foo;
+				editPerson.token = PERSONService.editProfile(fIRST_NMTextInput1.text, lAST_NMTextInput1.text, eMAIL_ADDRESS_TXTextInput1.text, pHONE_NUMBER_TXTextInput1.text, parseInt(personid));
+				PERSONService.commit();
+				currentState = "Account_Details";
+				Alert.show("Profile Updated Successfully");
+				this.populateAccount_DetailsPage();
+			}
+			
+			public var foo:String;
+			
+			protected function ManageAccountsbtn_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Account_Details";
+				this.populateAccount_DetailsPage();
+				
+			}
+			
+			public function populateAccount_DetailsPage():void
+			{
+				//Alert.show("executed");
+				usernamelbl.text = usernameTextInput.text; 
+				var manage_account:User_account = new User_account();
+				manage_account.USER_NM = usernameTextInput.text;
+				UserpersonIDResult.token = useraccountService.getPersonID(manage_account);
+				UserpersonIDResult.addEventListener(ResultEvent.RESULT, getuserPersonIDResult_resultHandler);
+			}
+			
+			protected function getuserPersonIDResult_resultHandler(event:ResultEvent):void
+			{
+				var personid:String;
+				personid = UserpersonIDResult.lastResult;
+				foo = personid;
+			}	
+			
+			protected function passwordChangeCancelbtn_clickHandler(event:MouseEvent):void
+			{
+				currentState = "Account_Details";
+			}
+			
+			//combobox
+			protected function comboBox_creationCompleteHandler(event:FlexEvent):void
+			{
+				getpriorityResult2.token = tASKService.getpriority();
+				tASKService.commit();
+			}
+			
+			protected function form_creationCompleteHandler(event:FlexEvent):void
+			{
+				getpriorityResult.token = tASKService.getpriority();
+			}
+
+			
+			protected function comboBoxORG_creationCompleteHandler(event:FlexEvent):void
+			{
+				getcomboorgResult.token = tASKService.getAllOrganization();
+				tASKService.commit();
+			}
+			
+			protected function comboBoxASSIGNTO_creationCompleteHandler(event:FlexEvent):void
+			{
+				getcomboassigntoResult.token = tASKService.getAllAssignedToPerson();
+				tASKService.commit();
+			}
+			
+			protected function comboBoxRECIPIENT_creationCompleteHandler(event:FlexEvent):void
+			{
+				getcomborecipientResult.token = tASKService.getAllTaskRecipientPerson();
+				tASKService.commit();
+			}
+			
+			
+			//change password code
+			protected function changePasswordSavebtn_clickHandler(event:MouseEvent):void
+			{
+
+				UserPasswordChangeResult.token = useraccountService.checkPassword(usernameTextInput.text, currentpasswdtext.text);
+				UserPasswordChangeResult.addEventListener(ResultEvent.RESULT, PasswordChangeResult_resultHandler);
+			}
+			
+			protected function PasswordChangeResult_resultHandler(event:ResultEvent):void
+			{
+				var flag:String;
+				
+				flag = UserPasswordChangeResult.lastResult;
+				if( confirmnewpasswdtext.text == newpasswdtext.text)
+				{
+					if( flag == '1' )
+					{	
+						NewUserPasswordChangeResult.token = useraccountService.updateUser_account(newpasswdtext.text, usernameTextInput.text);
+						useraccountService.commit();
+						currentState = "Account_Details";
+						Alert.show("Password Updated Successfully");
+						
+					}
+					else
+					{
+						Alert.show("Invalid Current Password");
+					}
+				}
+				else
+				{	
+					Alert.show("New passwords do not match");
+				}
+			}
+			
+			protected function assignedto_clickHandler(event:MouseEvent):void
+			{
+				var usernm:String;
+				usernm= usernameTextInput.text;
+				getAssignedToResult.token = tASKService.getAssignedTo(usernm);				
+				currentState= "AssignedTo";
+				
+			}
+			
+			
+			protected function assigntochart_creationCompleteHandler(event:FlexEvent):void
+			{
+				var usernm:String;
+				usernm= usernameTextInput.text;
+				getAssignedToResult.token = tASKService.getAssignedTo(usernm);
+			}
+			
+			
+			
+			protected function assignedbychart_creationCompleteHandler(event:FlexEvent):void
+			{
+				var usernm:String;
+				usernm= usernameTextInput.text;
+				getAssignedByResult.token = tASKService.getAssignedBy(usernm);
+			}
+			
+			protected function assignedby_clickHandler(event:MouseEvent):void
+			{
+				var usernm:String;
+				usernm= usernameTextInput.text;
+				getAssignedByResult.token = tASKService.getAssignedBy(usernm)
+				currentState="AssignedBy";
+				
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	
+	<s:states>
+		<s:State name="Task_Home"/>
+		<s:State name="Display_Task"/>
+		<s:State name="Create_Task"/>
+		<s:State name="Login"/>
+		<s:State name="Create_Subtask"/>
+		<s:State name="Update_Task_Display"/>
+		<s:State name="Update_Task_Form"/>
+		<s:State name="Delegate_Task_Display"/>
+		<s:State name="Reassign_Task_Form"/>
+		<s:State name="Views"/>
+		<s:State name="Complete"/>
+		<s:State name="Active"/>
+		<s:State name="Overdue"/>
+		<s:State name="Create_Org"/>
+		<s:State name="view_group"/>
+		<s:State name="Signup"/>
+		<s:State name="Account_Details"/>
+		<s:State name="Edit_Profile"/>
+		<s:State name="Change_Password"/>
+		<s:State name="Risk_Task"/>
+		<s:State name="Time_Task"/>
+		<s:State name="Task_View"/>
+		<s:State name="AssignedTo"/>
+		<s:State name="AssignedBy"/>
+	</s:states>
+	
+	
+	
+	<fx:Declarations>
+		<useraccountservice:UseraccountService id="useraccountService"
+											   fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+											   showBusyCursor="true"/>
+		<useraccountservice:UseraccountService id="useraccountService2"
+											   fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+											   showBusyCursor="true"/>
+		
+		<mx:StringValidator id="req" 
+							source="{usernameTextInput}" 
+							property="text" 
+							required="true"/>
+
+		<s:CallResponder id="getUser_accountByIDResult"/>
+		<s:CallResponder id="getAllTASKResult"/>
+		<s:CallResponder id="getAllTaskResult7"/>
+		<s:CallResponder id="getAllTaskResult8"/>
+		<s:CallResponder id="getAllTaskResult"/>
+		<s:CallResponder id="getAllTaskResult2"/>
+		<s:CallResponder id="getAllTaskResult5"/>
+		<s:CallResponder id="getAllTaskResult6"/>
+		<s:CallResponder id="updateTaskFinalResult"/>
+		<s:CallResponder id="delegatetaskResult"/>
+		<s:CallResponder id="createTASKResult2"/>
+		<s:CallResponder id="countResult"/>
+		<s:CallResponder id="createTASKResult"/>
+		<s:CallResponder id="delegatetaskResult4"/>
+		<s:CallResponder id="delegatetaskResult5"/>
+		<s:CallResponder id="getAllActiveResult"/>
+		<s:CallResponder id="getAllActiveResult2"/>
+		<s:CallResponder id="getAllCompleteResult"/>
+		<s:CallResponder id="getAllCompleteResult2"/>
+		<s:CallResponder id="getAllCompleteResult3"/>
+		<s:CallResponder id="deleteTaskResult"/>
+		<s:CallResponder id="getOverdueResult"/>
+		<s:CallResponder id="getOverdueResult2"/>
+		<s:CallResponder id="getTASKByIDResult"/>
+		<s:CallResponder id="getAllGroupResult"/>
+		<s:CallResponder id="getAtRiskResult"/>
+		<s:CallResponder id="emailNotifyResult"/>
+		<s:CallResponder id="getOnTimeResult"/>
+		<s:CallResponder id="createOrganizationResult"/>
+		<s:CallResponder id="getTaskByIDResult2"/>
+		<s:CallResponder id="getCommentByIDResult"/>
+		<s:CallResponder id="createPersonResult"/>
+		<s:CallResponder id="createUseraccountResult"/>
+		<s:CallResponder id="UserpersonIDResult"/>
+		<s:CallResponder id="PersonDisplayResult"/>
+		<s:CallResponder id="DeleteProfileResult"/>
+		<s:CallResponder id="editPerson"/>
+		<s:CallResponder id="getpriorityResult2"/>
+		<s:CallResponder id="getcomboorgResult"/>
+		<s:CallResponder id="getcomboassigntoResult"/>
+		<s:CallResponder id="getcomborecipientResult"/>
+		<s:CallResponder id="UserPasswordChangeResult"/>
+		<s:CallResponder id="NewUserPasswordChangeResult"/>
+			
+		
+		<taskservice:TaskService id="tASKService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<organizationservice:OrganizationService id="organizationService"
+												 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+												 showBusyCursor="true"/>
+		<taskcomment:TaskComment id="taskcomment"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<personservice:PersonService id="PERSONService"
+									 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+									 showBusyCursor="true"/>
+		
+		<valueObjects:Task id="tASK"/>
+		<valueObjects:Task id="tASK2"/>
+		<valueObjects:Task id="task7"/>
+		<valueObjects:Organization id="organization"/>
+		<valueObjects:Person id="person"/>
+		<valueObjects:Person id="personedit"/>
+		<valueObjects:Person id="persondisplay"/>
+		<valueObjects:User_account id="user_account"/>
+		<valueObjects:User_account id="user_account1"/>
+		<valueObjects:CustomDatatype id="customDatatype"/>
+		<s:CallResponder id="getpriorityResult"
+						 result="customDatatype = getpriorityResult.lastResult[0] as CustomDatatype"/>
+		<s:CallResponder id="getAssignedToResult"/>
+		<s:CallResponder id="getAssignedByResult"/>
+		<s:CallResponder id="getTaskByIDResult"/>
+				
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		
+		<!-- Define custom colors for use as column fills. -->
+		<mx:SolidColor id="sc1" color="blue" alpha=".3"/>
+		<mx:SolidColor id="sc2" color="red" alpha=".3"/>
+		
+		<!-- Define custom SolidColorStrokes for the columns. -->
+		<mx:SolidColorStroke id="s1" color="blue" weight="2"/>
+		<mx:SolidColorStroke id="s2" color="red" weight="2"/>
+		
+		
+		
+	</fx:Declarations>
+	
+	
+	
+	
+	<s:Form includeIn="Login">
+	</s:Form>
+	<s:Form includeIn="Create_Task,Update_Task_Form,Reassign_Task_Form">
+	</s:Form>
+	<s:Panel includeIn="Login" x="467" y="165" width="344" height="290" fontFamily="Georgia">
+		<s:FormItem x="24" y="37" width="308" label="Username" fontFamily="Georgia" fontSize="16"
+					fontWeight="bold">
+			<s:TextInput id="usernameTextInput" width="152" fontFamily="Georgia" fontWeight="bold"
+						 maxChars="30" text="{user_account.USER_NM}"/>
+		</s:FormItem>
+		<s:FormItem x="18" y="100" width="308" label="Password" fontFamily="Georgia" fontSize="16"
+					fontWeight="bold" textAlign="left">
+			<s:TextInput id="passwordTextInput" width="158" displayAsPassword="true"
+						 fontFamily="Georgia" fontWeight="bold" maxChars="32"
+						 text="{user_account.PASSWORD_TX}"/>
+		</s:FormItem>
+		<s:Form id="Loginform" x="127" y="172" defaultButton="{loginbutton}">
+			<s:Button id="loginbutton" label="SUBMIT" click="loginbutton_clickHandler(event)"
+					  fontFamily="Georgia" fontWeight="bold"/>
+		</s:Form>
+		<s:Label x="127" y="-23" color="#1A155E" fontFamily="Georgia" fontSize="21" fontWeight="bold"
+				 text="LOGIN"/>
+	</s:Panel>
+	<s:Label includeIn="Login" x="0" y="6" width="955" height="101" backgroundColor="#33D4E2"
+			 color="#FFFCFC" fontFamily="Georgia" fontSize="36" fontWeight="bold"
+			 text="Welcome to GWtodo" textAlign="left" verticalAlign="middle"/>
+	<s:Button id="viewtask" includeIn="Task_Home" x="623" y="180" width="230" height="35"
+			  label="VIEW TASKS" click="viewtask_clickHandler(event)" fontFamily="Georgia"
+			  fontSize="20" fontWeight="bold"/>
+	<s:Button id="createtask" includeIn="Task_Home" x="387" y="179" width="230" height="35"
+			  label="CREATE TASK" click="createtask_clickHandler(event)" fontFamily="Georgia"
+			  fontSize="20" fontWeight="bold"/>
+	<s:Label includeIn="Task_Home" x="-22" y="10" width="977" height="95" backgroundColor="#4072F3"
+			 color="#FFFFFF" fontFamily="Georgia" fontSize="35" fontWeight="bold" text="GWTODO"
+			 textAlign="center" verticalAlign="middle"/>
+	<s:Image includeIn="Task_Home" x="31" y="106" width="321" height="309"
+			 source="assets/ToDo-Task-Manager-Lite-Android-App.jpg"/>
+	<s:Panel includeIn="Display_Task" x="10" y="168" width="946" height="346">
+		<s:DataGrid id="dataGrid" x="22" y="10" width="885" height="268"
+					creationComplete="dataGrid_creationCompleteHandler(event)" fontFamily="Georgia"
+					fontWeight="bold" requestedRowCount="4"
+					selectionChange="dataGrid_selectionChangeHandler(event)" textAlign="left">
+			<s:columns>
+				<s:ArrayList>
+					<s:GridColumn dataField="TASK_ID" headerText="Task ID"></s:GridColumn>
+					<s:GridColumn dataField="PARENT_TASK_ID" headerText="Parent Task ID"></s:GridColumn>
+					<s:GridColumn dataField="PRIORITY_NR" headerText="Priority"></s:GridColumn>
+					<s:GridColumn dataField="SHORT_TITLE_TX" headerText="Short Title"></s:GridColumn>
+					<s:GridColumn dataField="SHORT_DESCRIPTION_TX"
+								  headerText="Short Description"></s:GridColumn>
+					<s:GridColumn dataField="LONG_DESCRIPTION_TX"
+								  headerText="Long Description"></s:GridColumn>
+					<s:GridColumn dataField="DEADLINE_DT" headerText="Deadline Date"></s:GridColumn>
+					<s:GridColumn dataField="ESTIMATED_COMPLETION_DT"
+								  headerText="Estimated Completion Date"></s:GridColumn>
+					<s:GridColumn dataField="COMPLETION_DT" headerText="Completion Date"></s:GridColumn>
+					<s:GridColumn dataField="RECIPIENT_PERSON_ID"
+								  headerText="Recipient Person ID"></s:GridColumn>
+					<s:GridColumn dataField="ASSIGNED_ORGANIZATION_ID"
+								  headerText="Assigned Organization ID"></s:GridColumn>
+					<s:GridColumn dataField="ASSIGNED_TO_PERSON_ID"
+								  headerText="Assigned to Person ID"></s:GridColumn>
+					<s:GridColumn dataField="ASSIGNED_BY_PERSON_ID"
+								  headerText="Assigned by Person ID"></s:GridColumn>
+					<s:GridColumn dataField="CREATED_BY_USER_NM" headerText="Created by UserName"></s:GridColumn>
+					<s:GridColumn dataField="CREATED_DTTM" headerText="Created Date and Time"></s:GridColumn>
+					<s:GridColumn dataField="LAST_UPDATED_BY_USER_NM"
+								  headerText="Last Updated by UserName"></s:GridColumn>
+					<s:GridColumn dataField="LAST_UPDATED_DTTM" headerText="Last Updated Date and Time"></s:GridColumn>
+				</s:ArrayList>
+			</s:columns>
+			<s:typicalItem>
+				<fx:Object ASSIGNED_BY_PERSON_ID="ASSIGNED_BY_PERSON_ID1"
+						   ASSIGNED_ORGANIZATION_ID="ASSIGNED_ORGANIZATION_ID1"
+						   ASSIGNED_TO_PERSON_ID="ASSIGNED_TO_PERSON_ID1"
+						   COMPLETION_DT="COMPLETION_DT1"
+						   CREATED_BY_USER_NM="CREATED_BY_USER_NM1" CREATED_DTTM="CREATED_DTTM1"
+						   DEADLINE_DT="DEADLINE_DT1"
+						   ESTIMATED_COMPLETION_DT="ESTIMATED_COMPLETION_DT1"
+						   LAST_UPDATED_BY_USER_NM="LAST_UPDATED_BY_USER_NM1"
+						   LAST_UPDATED_DTTM="LAST_UPDATED_DTTM1"
+						   LONG_DESCRIPTION_TX="LONG_DESCRIPTION_TX1"
+						   PARENT_TASK_ID="PARENT_TASK_ID1" PRIORITY_NR="PRIORITY_NR1"
+						   RECIPIENT_PERSON_ID="RECIPIENT_PERSON_ID1"
+						   SHORT_DESCRIPTION_TX="SHORT_DESCRIPTION_TX1"
+						   SHORT_TITLE_TX="SHORT_TITLE_TX1" TASK_ID="TASK_ID1"></fx:Object>
+			</s:typicalItem>
+			<s:AsyncListView list="{getAllTASKResult.lastResult}"/>
+		</s:DataGrid>
+	</s:Panel>
+	
+	
+	<s:Label includeIn="Display_Task" x="-1" y="8" width="957" height="110" backgroundColor="#983D91"
+			 color="#FFFFFF" fontFamily="Georgia" fontSize="35" fontWeight="bold" text="Available Tasks"
+			 textAlign="center" verticalAlign="middle"/>
+	
+	<s:Group id="btngroup" includeIn="Display_Task" x="306" y="539" width="298" height="125">
+	<s:Button id="redirectocreate" x="519" y="447" label="CLICK HERE"
+			  click="redirectocreate_clickHandler(event)" color="#A50CAF" fontFamily="Georgia"
+			  fontWeight="bold"/>
+	<s:Button id="returntohome" x="519" y="499" label="CLICK HERE"
+			  click="returntohome_clickHandler(event)" color="#A50CAF" fontFamily="Georgia"
+			  fontWeight="bold"/>
+	</s:Group>
+	<s:Button id="deletetaskbtn" includeIn="Display_Task" x="181" y="139" label="Delete Task"
+			  click="deletetaskbtn_clickHandler(event)" fontFamily="Georgia" fontWeight="bold"/>
+
+	<s:Form includeIn="Create_Task" x="215" y="187" width="563" height="418"
+			backgroundColor="#E6F0F0" defaultButton="{button}" fontFamily="Georgia">			
+		<s:FormItem width="360" height="30" label="Title" color="#0A0A32">
+			<s:TextArea id="sHORT_TITLE_TXTextInput" width="175" height="21" enabled="true" maxChars="50"
+						text="{tASK2.SHORT_TITLE_TX}" textAlign="left" verticalAlign="top"/>
+		</s:FormItem>
+		<s:FormItem width="360" height="53" label="Brief Description" color="#0A0A32">
+			<s:TextArea id="sHORT_DESCRIPTION_TXTextInput" width="175" height="40" enabled="true" maxChars="100"
+						text="{tASK2.SHORT_DESCRIPTION_TX}"/>
+		</s:FormItem>
+		<s:FormItem width="360" height="56" label="Details" color="#0A0A32">
+			<s:TextArea id="lONG_DESCRIPTION_TXTextInput" width="174" height="42" enabled="true" maxChars="2000"
+						text="{tASK2.LONG_DESCRIPTION_TX}"/>
+		</s:FormItem>
+		
+		<s:FormItem label="Priority">
+		<mx:ComboBox id="comboBox" creationComplete="comboBox_creationCompleteHandler(event)"
+					 dataProvider="{getpriorityResult2.lastResult}" enabled="true"
+					 includeInLayout="true" labelField="PRIORITY_NR">
+		</mx:ComboBox> 
+		</s:FormItem>
+		
+		<s:FormItem width="360" height="30" label="Estimated Completion Dt." color="#0A0A32">
+			<mx:DateField id="eSTIMATED_COMPLETION_DTDateField" width="175"
+						  selectedDate="{tASK2.ESTIMATED_COMPLETION_DT}"/>
+		</s:FormItem>
+		
+		<s:FormItem width="360" height="30" label="Deadline" color="#0A0A32">
+			<mx:DateField id="dEADLINE_DTDateField" x="1" y="0" width="175" height="22"
+						  selectedDate="{tASK2.DEADLINE_DT}"/>
+		</s:FormItem>
+		
+		
+		
+		<s:FormItem label="Assign To">
+			<mx:ComboBox id="comboboxassignto" creationComplete="comboBoxASSIGNTO_creationCompleteHandler(event)"
+						 dataProvider="{getcomboassigntoResult.lastResult}" enabled="true"
+						 includeInLayout="true" labelField="FIRST_LAST_ASSIGNED_NM">
+			</mx:ComboBox>
+		</s:FormItem>
+		
+		
+		<s:FormItem label="Organization">
+		<mx:ComboBox id="comboboxassignorg" creationComplete="comboBoxORG_creationCompleteHandler(event)"
+					 dataProvider="{getcomboorgResult.lastResult}" enabled="true"
+					 includeInLayout="true" labelField="ORGANIZATION_NM">
+		</mx:ComboBox>
+		</s:FormItem>
+		
+		
+		<s:FormItem label="Recipient">
+			<mx:ComboBox id="comboboxrecipient" creationComplete="comboBoxRECIPIENT_creationCompleteHandler(event)"
+						 dataProvider="{getcomborecipientResult.lastResult}" enabled="true"
+						 includeInLayout="true" labelField="FIRST_LAST_RECIPIENT_NM">
+			</mx:ComboBox>
+		</s:FormItem>	
+	</s:Form>
+	
+	<s:Label includeIn="Create_Task" x="39" y="23" width="916" height="116" backgroundColor="#AA3535"
+			 color="#FFFFFF" fontFamily="Georgia" fontSize="35" fontWeight="bold"
+			 text="New Task" textAlign="center" verticalAlign="middle"/>
+	<s:Button id="button" includeIn="Create_Task" x="230" y="159" width="117" label="Create TASK"
+			  click="button_clickHandler(event)" fontFamily="Georgia" fontSize="12"
+			  fontWeight="bold"/>
+	<s:Button id="gwtodocreatebutton" includeIn="Create_Task" x="367" y="158" width="117"
+			  label="GWTODO" click="gwtodocreatebutton_clickHandler(event)" fontFamily="Georgia"
+			  fontSize="12" fontWeight="bold"/>
+	<s:Button id="updateTask" includeIn="Task_Home" x="386" y="221" width="230" height="35"
+			  label="UPDATE TASK" click="updateTask_clickHandler(event)" fontFamily="Georgia"
+			  fontSize="20" fontWeight="bold"/>
+	<s:Button id="delegateTask" includeIn="Task_Home" x="622" y="221" width="230" height="35"
+			  label="REASSIGN TASK" click="delegateTask_clickHandler(event)" fontFamily="Georgia"
+			  fontSize="20" fontWeight="bold"/>
+		
+	
+	<s:Label includeIn="Create_Subtask" x="0" y="10" width="955" height="96"
+			 backgroundColor="#07C021" color="#FEFEFE" fontFamily="Georgia" fontSize="35"
+			 fontWeight="bold" text="Subtask" textAlign="center" verticalAlign="middle"/>
+	
+	<s:Form includeIn="Create_Subtask" x="105" y="176" width="539" height="635"
+			backgroundColor="#E6F0F0" defaultButton="{button}" fontFamily="Georgia">
+		<s:layout>
+			<s:TileLayout/>
+		</s:layout>
+		
+		<s:FormItem label="Subtask Title" width="360" height="30" color="#0A0A32">
+			<s:TextArea id="sHORT_TITLE_TXTextInput0" width="195" height="25" enabled="true"
+						maxChars="50" text="{tASK2.SHORT_TITLE_TX}"/>
+		</s:FormItem>
+		<s:FormItem label="Brief Description" width="360" height="53" color="#0A0A32">
+			<s:TextArea id="sHORT_DESCRIPTION_TXTextInput0" width="175" height="40" enabled="true"
+						maxChars="100" text="{tASK2.SHORT_DESCRIPTION_TX}"/>
+		</s:FormItem>
+		<s:FormItem label="Subtask Details" width="360" height="56" color="#0A0A32">
+			<s:TextArea id="lONG_DESCRIPTION_TXTextInput0" width="174" height="42" enabled="true"
+						maxChars="2000" text="{tASK2.LONG_DESCRIPTION_TX}"/>
+		</s:FormItem>
+		
+		
+		<s:FormItem label="Priority">
+			<mx:ComboBox id="comboBoxprio" creationComplete="comboBox_creationCompleteHandler(event)"
+						 dataProvider="{getpriorityResult2.lastResult}" enabled="true"
+						 includeInLayout="true" labelField="PRIORITY_NR">
+			</mx:ComboBox> 
+		</s:FormItem>
+		
+		
+		<s:FormItem label="Estimated Completion Date" width="360" height="30" color="#0A0A32">
+			<mx:DateField id="eSTIMATED_COMPLETION_DTDateField0" selectedDate="{tASK2.ESTIMATED_COMPLETION_DT}" width="175"/>
+		</s:FormItem>
+		
+		
+		<s:FormItem label="Assign To">
+			<mx:ComboBox id="comboboxsubassignto" creationComplete="comboBoxASSIGNTO_creationCompleteHandler(event)"
+						 dataProvider="{getcomboassigntoResult.lastResult}" enabled="true"
+						 includeInLayout="true" labelField="FIRST_LAST_ASSIGNED_NM">
+			</mx:ComboBox>
+		</s:FormItem>
+		
+		
+		<s:FormItem label="Deadline" width="360" height="30" color="#0A0A32">
+			<mx:DateField id="dEADLINE_DTDateField0" x="1" y="0" width="175" height="22"
+						  selectedDate="{tASK2.DEADLINE_DT}"/>
+		</s:FormItem>
+		
+		<s:FormItem label="Organization">
+			<mx:ComboBox id="comboboxsubassignorg" creationComplete="comboBoxORG_creationCompleteHandler(event)"
+						 dataProvider="{getcomboorgResult.lastResult}" enabled="true"
+						 includeInLayout="true" labelField="ORGANIZATION_NM">
+			</mx:ComboBox>
+		</s:FormItem>
+		
+		<s:FormItem label="Recipient">
+			<mx:ComboBox id="comboboxsubrecipient" creationComplete="comboBoxRECIPIENT_creationCompleteHandler(event)"
+						 dataProvider="{getcomborecipientResult.lastResult}" enabled="true"
+						 includeInLayout="true" labelField="FIRST_LAST_RECIPIENT_NM">
+			</mx:ComboBox>
+		</s:FormItem>	
+		
+		<s:FormItem label="">
+			<s:TextInput id="pARENTTASKTextInput0" text="{dataGrid.selectedItem.TASK_ID}" includeInLayout="false"/>
+		</s:FormItem>
+	</s:Form>
+	<s:Button id="Subtaskcreatebtn" includeIn="Create_Subtask" x="120" y="148" label="Create Subtask"
+			  click="Subtaskcreatebtn_clickHandler(event)" fontFamily="Georgia"
+			  fontWeight="bold"/>
+	<s:Button id="Subtaskgwtodobtn" includeIn="Create_Subtask" x="269" y="148" width="103"
+			  label="GWTODO" click="Subtaskgwtodobtn_clickHandler(event)" fontFamily="Georgia"
+			  fontWeight="bold"/>
+	
+	
+	<s:Panel id="panel" includeIn="Update_Task_Display" x="73"
+			 y="157" width="883" height="417"
+			 creationComplete="panel_creationCompleteHandler(event)">
+		<s:DataGrid id="dataGridUpdateFinal" x="22" y="10" width="833" height="347"
+					creationComplete="dataGridDisplay_creationCompleteHandler(event)"
+					fontFamily="Georgia" requestedRowCount="4"
+					selectionChange="dataGridUpdateFinal_selectionChangeHandler(event)"
+					textAlign="left">
+			<s:columns>
+				<s:ArrayList>
+					<s:GridColumn dataField="TASK_ID" headerText="Task ID"></s:GridColumn>
+					<s:GridColumn dataField="PARENT_TASK_ID" headerText="Parent Task ID"></s:GridColumn>
+					<s:GridColumn dataField="PRIORITY_NR" headerText="Priority"></s:GridColumn>
+					<s:GridColumn dataField="SHORT_TITLE_TX" headerText="Short Title"></s:GridColumn>
+					<s:GridColumn dataField="SHORT_DESCRIPTION_TX"
+								  headerText="Short Description"></s:GridColumn>
+					<s:GridColumn dataField="LONG_DESCRIPTION_TX"
+								  headerText="Long Description"></s:GridColumn>
+					<s:GridColumn dataField="DEADLINE_DT" headerText="Deadline Date"></s:GridColumn>
+					<s:GridColumn dataField="ESTIMATED_COMPLETION_DT"
+								  headerText="Estimated Completion Date"></s:GridColumn>
+					<s:GridColumn dataField="COMPLETION_DT" headerText="Completion Date"></s:GridColumn>
+					<s:GridColumn dataField="RECIPIENT_PERSON_ID"
+								  headerText="Recipient Person ID"></s:GridColumn>
+					<s:GridColumn dataField="ASSIGNED_ORGANIZATION_ID"
+								  headerText="Assigned Organization ID"></s:GridColumn>
+					<s:GridColumn dataField="ASSIGNED_TO_PERSON_ID"
+								  headerText="Assigned to Person ID"></s:GridColumn>
+					<s:GridColumn dataField="ASSIGNED_BY_PERSON_ID"
+								  headerText="Assigned by Person ID"></s:GridColumn>
+					<s:GridColumn dataField="CREATED_BY_USER_NM" headerText="Created by UserName"></s:GridColumn>
+					<s:GridColumn dataField="CREATED_DTTM" headerText="Created Date and Time"></s:GridColumn>
+					<s:GridColumn dataField="LAST_UPDATED_BY_USER_NM"
+								  headerText="Last Updated by UserName"></s:GridColumn>
+					<s:GridColumn dataField="LAST_UPDATED_DTTM" headerText="Last Updated Date and Time"></s:GridColumn>
+				</s:ArrayList>
+			</s:columns>
+			<s:typicalItem>
+				<fx:Object ASSIGNED_BY_PERSON_ID="ASSIGNED_BY_PERSON_ID1"
+						   ASSIGNED_ORGANIZATION_ID="ASSIGNED_ORGANIZATION_ID1"
+						   ASSIGNED_TO_PERSON_ID="ASSIGNED_TO_PERSON_ID1"
+						   COMPLETION_DT="COMPLETION_DT1"
+						   CREATED_BY_USER_NM="CREATED_BY_USER_NM1" CREATED_DTTM="CREATED_DTTM1"
+						   DEADLINE_DT="DEADLINE_DT1"
+						   ESTIMATED_COMPLETION_DT="ESTIMATED_COMPLETION_DT1"
+						   LAST_UPDATED_BY_USER_NM="LAST_UPDATED_BY_USER_NM1"
+						   LAST_UPDATED_DTTM="LAST_UPDATED_DTTM1"
+						   LONG_DESCRIPTION_TX="LONG_DESCRIPTION_TX1"
+						   PARENT_TASK_ID="PARENT_TASK_ID1" PRIORITY_NR="PRIORITY_NR1"
+						   RECIPIENT_PERSON_ID="RECIPIENT_PERSON_ID1"
+						   SHORT_DESCRIPTION_TX="SHORT_DESCRIPTION_TX1"
+						   SHORT_TITLE_TX="SHORT_TITLE_TX1" TASK_ID="TASK_ID1"></fx:Object>
+			</s:typicalItem>
+			<s:AsyncListView list="{getAllTaskResult8.lastResult}"/>
+		</s:DataGrid>
+	</s:Panel>
+	
+	
+	<s:Label includeIn="Delegate_Task_Display" x="-1" y="10" width="957" height="108"
+			 backgroundColor="#FC712C" color="#FFFFFF" fontFamily="Georgia" fontSize="35"
+			 fontWeight="bold" text="Select Task to Reassign" textAlign="center"
+			 verticalAlign="middle"/>
+	
+	
+	<s:Label includeIn="Update_Task_Form" x="0" y="10" width="955" height="92"
+			 backgroundColor="#890505" color="#FFFFFF" fontFamily="Georgia" fontSize="35"
+			 fontWeight="bold" text="Update Task" textAlign="center" verticalAlign="middle"/>
+	
+	
+	<s:Form includeIn="Update_Task_Form" x="105" y="176" width="579" height="481"
+			backgroundColor="#E6F0F0" defaultButton="{button}" fontFamily="Georgia">
+		<s:FormItem label="Task Title"  width="360" height="30" color="#0A0A32">
+			<s:TextArea id="sHORT_TITLE_TXTextInput2" width="175" height="24" enabled="true"
+						maxChars="50" text="{dataGridUpdateFinal.selectedItem.SHORT_TITLE_TX}"/>
+		</s:FormItem>
+		<s:FormItem label="Brief Description"  width="360" height="53" color="#0A0A32">
+			<s:TextArea id="sHORT_DESCRIPTION_TXTextInput2" width="175" height="40" enabled="true"
+						maxChars="100"
+						text="{dataGridUpdateFinal.selectedItem.SHORT_DESCRIPTION_TX}"/>
+		</s:FormItem>
+		<s:FormItem label="Task Details" width="360" height="56" color="#0A0A32">
+			<s:TextArea id="lONG_DESCRIPTION_TXTextInput2" width="174" height="42" enabled="true"
+						maxChars="2000"
+						text="{dataGridUpdateFinal.selectedItem.LONG_DESCRIPTION_TX}"/>
+		</s:FormItem>
+		<s:FormItem label="Deadline" width="360" height="30" color="#0A0A32">
+			<mx:DateField id="dEADLINE_DTDateField2" selectedDate="{dataGridUpdateFinal.selectedItem.DEADLINE_DT}"
+						  x="1" y="0" width="175" height="22"/>
+		</s:FormItem>
+		<s:FormItem label="Estimated Completion Date" width="360" height="30" color="#0A0A32">
+			<mx:DateField id="eSTIMATED_COMPLETION_DTDateField2" selectedDate="{dataGridUpdateFinal.selectedItem.ESTIMATED_COMPLETION_DT}"
+						  width="175"/>
+		</s:FormItem>
+		
+		<s:FormItem label="Priority">
+			<mx:ComboBox id="comboBoxupdateprio" creationComplete="comboBox_creationCompleteHandler(event)"
+						 dataProvider="{getpriorityResult2.lastResult}" enabled="true"
+						 includeInLayout="true" labelField="PRIORITY_NR">
+			</mx:ComboBox> 
+		</s:FormItem>
+		
+		<s:FormItem label="Completion Date">
+			<mx:DateField id="cOMPLETION_DTDateField" selectedDate="{dataGridUpdateFinal.selectedItem.COMPLETION_DT}"/>
+		</s:FormItem>
+		
+		<s:FormItem label="Assign To">
+			<mx:ComboBox id="comboboxupdateassignto" creationComplete="comboBoxASSIGNTO_creationCompleteHandler(event)"
+						 dataProvider="{getcomboassigntoResult.lastResult}" enabled="true"
+						 includeInLayout="true" labelField="FIRST_LAST_ASSIGNED_NM">
+			</mx:ComboBox>
+		</s:FormItem>
+		
+		<s:FormItem label="Recipient">
+			<mx:ComboBox id="comboboxupdaterecipient" creationComplete="comboBoxRECIPIENT_creationCompleteHandler(event)"
+						 dataProvider="{getcomborecipientResult.lastResult}" enabled="true"
+						 includeInLayout="true" labelField="FIRST_LAST_RECIPIENT_NM">
+			</mx:ComboBox>
+		</s:FormItem>
+		
+		<s:FormItem label="Organization">
+			<mx:ComboBox id="comboboxupdateassignorg" creationComplete="comboBoxORG_creationCompleteHandler(event)"
+						 dataProvider="{getcomboorgResult.lastResult}" enabled="true"
+						 includeInLayout="true" labelField="ORGANIZATION_NM">
+			</mx:ComboBox>
+		</s:FormItem>
+			
+		<s:FormItem label="">
+			<s:TextInput id="UserName" text="{dataGridUpdateFinal.selectedItem.LAST_UPDATED_BY_USER_NM}" includeInLayout="false"/>
+		</s:FormItem>
+		<s:FormItem label="" width="50" height="50">
+			<s:TextInput id="tASK_IDTextInput" text="{dataGridUpdateFinal.selectedItem.TASK_ID}" includeInLayout="false"/>
+		</s:FormItem>
+		<s:FormItem label="" width="50" height="50">
+			<s:TextInput id="pARENT_TASK_IDTextInput" text="{dataGridUpdateFinal.selectedItem.PARENT_TASK_ID}" includeInLayout="false"/>
+		</s:FormItem>
+	</s:Form>
+
+	
+	<s:Form includeIn="Reassign_Task_Form" x="134" y="207" width="387" height="166"
+			defaultButton="{delegatebutton}" fontFamily="Georgia">
+		
+		<s:FormItem label="Assign To">
+			<mx:ComboBox id="comboboxreassignto" creationComplete="comboBoxASSIGNTO_creationCompleteHandler(event)"
+						 dataProvider="{getcomboassigntoResult.lastResult}" enabled="true"
+						 includeInLayout="true" labelField="FIRST_LAST_ASSIGNED_NM">
+			</mx:ComboBox>
+		</s:FormItem>
+		
+		<s:FormItem width="355" label="">
+			<s:TextInput id="tASK_IDTextInput2" text="{dataGridDe.selectedItem.TASK_ID}" includeInLayout="false"/>
+		</s:FormItem>
+		<s:FormItem label="">
+			<s:TextInput id="lAST_UPDATED_BY_USER_NMTextInput"
+						 text="{dataGridDe.selectedItem.LAST_UPDATED_BY_USER_NM}" includeInLayout="false"/>
+		</s:FormItem>
+	</s:Form>
+	<s:Label includeIn="Update_Task_Display" x="-1" y="10" width="957" height="106"
+			 backgroundColor="#C984C3" color="#FFFFFF" fontFamily="Georgia" fontSize="35"
+			 fontWeight="bold" text="Select A Task To be Updated" textAlign="center"
+			 verticalAlign="middle"/>
+	<s:Panel includeIn="Delegate_Task_Display" x="121" y="186" width="811" height="430">
+		<s:DataGrid id="dataGridDe" x="15" y="8" width="775" height="370"
+					creationComplete="dataGrid3_creationCompleteHandler(event)" fontFamily="Georgia"
+					requestedRowCount="4" selectionChange="dataGrid3_selectionChangeHandler(event)">
+			<s:columns>
+				<s:ArrayList>
+					<s:GridColumn dataField="TASK_ID" headerText="TASK ID"></s:GridColumn>
+					<s:GridColumn dataField="PARENT_TASK_ID" headerText="PARENT TASK ID"></s:GridColumn>
+					<s:GridColumn dataField="PRIORITY_NR" headerText="PRIORITY LEVEL"></s:GridColumn>
+					<s:GridColumn dataField="SHORT_TITLE_TX" headerText="TITLE"></s:GridColumn>
+					<s:GridColumn dataField="SHORT_DESCRIPTION_TX" headerText="BRIEF DESCRIPTION"></s:GridColumn>
+					<s:GridColumn dataField="LONG_DESCRIPTION_TX" headerText="DETAILS"></s:GridColumn>
+					<s:GridColumn dataField="DEADLINE_DT" headerText="DEADLINE"></s:GridColumn>
+					<s:GridColumn dataField="ESTIMATED_COMPLETION_DT"
+								  headerText="ESTIMATED COMPLETION DATE"></s:GridColumn>
+					<s:GridColumn dataField="COMPLETION_DT" headerText="COMPLETION_DATE"></s:GridColumn>
+					<s:GridColumn dataField="RECIPIENT_PERSON_ID" headerText="RECIPIENT PERSON ID"></s:GridColumn>
+					<s:GridColumn dataField="ASSIGNED_ORGANIZATION_ID"
+								  headerText="ASSIGNED ORGANIZATION ID"></s:GridColumn>
+					<s:GridColumn dataField="ASSIGNED_TO_PERSON_ID" headerText="ASSIGNED TO PERSON ID"></s:GridColumn>
+					<s:GridColumn dataField="ASSIGNED_BY_PERSON_ID" headerText="ASSIGNED BY PERSON ID"></s:GridColumn>
+					<s:GridColumn dataField="CREATED_BY_USER_NM" headerText="CREATED BY USER"></s:GridColumn>
+					<s:GridColumn dataField="CREATED_DTTM" headerText="CREATED DTTM"></s:GridColumn>
+					<s:GridColumn dataField="LAST_UPDATED_BY_USER_NM"
+								  headerText="LAST UPDATED BY USER"></s:GridColumn>
+					<s:GridColumn dataField="LAST_UPDATED_DTTM" headerText="LAST UPDATED DTTM"></s:GridColumn>
+				</s:ArrayList>
+			</s:columns>
+			<s:typicalItem>
+				<fx:Object ASSIGNED_BY_PERSON_ID="ASSIGNED_BY_PERSON_ID1"
+						   ASSIGNED_ORGANIZATION_ID="ASSIGNED_ORGANIZATION_ID1"
+						   ASSIGNED_TO_PERSON_ID="ASSIGNED_TO_PERSON_ID1" COMPLETION_DT="COMPLETION_DT1"
+						   CREATED_BY_USER_NM="CREATED_BY_USER_NM1" CREATED_DTTM="CREATED_DTTM1"
+						   DEADLINE_DT="DEADLINE_DT1" ESTIMATED_COMPLETION_DT="ESTIMATED_COMPLETION_DT1"
+						   LAST_UPDATED_BY_USER_NM="LAST_UPDATED_BY_USER_NM1"
+						   LAST_UPDATED_DTTM="LAST_UPDATED_DTTM1"
+						   LONG_DESCRIPTION_TX="LONG_DESCRIPTION_TX1" PARENT_TASK_ID="PARENT_TASK_ID1"
+						   PRIORITY_NR="PRIORITY_NR1" RECIPIENT_PERSON_ID="RECIPIENT_PERSON_ID1"
+						   SHORT_DESCRIPTION_TX="SHORT_DESCRIPTION_TX1" SHORT_TITLE_TX="SHORT_TITLE_TX1"
+						   TASK_ID="TASK_ID1"></fx:Object>
+			</s:typicalItem>
+			<s:AsyncListView list="{getAllTaskResult5.lastResult}"/>
+		</s:DataGrid>
+	</s:Panel>
+	
+	
+	
+	<s:Button id="delegateTaskgwtodoButton" includeIn="Reassign_Task_Form" x="350" y="391" width="99"
+			  label="GWtodo" click="delegateTaskgwtodoButton_clickHandler(event)"
+			  fontFamily="Georgia" fontWeight="bold"/>
+	<s:Button id="reportingcall" includeIn="Task_Home" x="502" y="307" width="246" height="35"
+			  label="REPORTING" click="reportingcall_clickHandler(event)" fontFamily="Georgia"
+			  fontSize="20" fontWeight="bold"/>
+	
+	
+	<s:Panel includeIn="Active,AssignedBy,AssignedTo,Complete,Overdue,Risk_Task,Time_Task,Views"
+			 x="0" y="0" chromeColor="#777373" dropShadowVisible="false" fontSize="12"
+			 title="TASK REPORT"
+			 width.Active="1634" height.Active="659" fontFamily.Active="Georgia"
+			 width.AssignedBy="1520" height.AssignedBy="649" fontFamily.AssignedBy="Georgia"
+			 width.AssignedTo="1520" height.AssignedTo="649" fontFamily.AssignedTo="Georgia"
+			 width.Complete="1634" height.Complete="659" fontFamily.Complete="Georgia"
+			 width.Overdue="1634" height.Overdue="659" fontFamily.Overdue="Georgia"
+			 width.Risk_Task="1634" height.Risk_Task="659" fontFamily.Risk_Task="Georgia"
+			 width.Time_Task="1634" height.Time_Task="659" fontFamily.Time_Task="Georgia"
+			 width.Views="1520" height.Views="649" fontFamily.Views="Georgia">
+		<s:layout>
+			<s:BasicLayout/>
+		</s:layout>
+		<s:BorderContainer width="1047" height="521" borderVisible="false"
+						   width.AssignedBy="1110" height.AssignedBy="535"
+						   width.AssignedTo="1110" height.AssignedTo="535"
+						   width.Complete="1212" height.Complete="540"
+						   width.Views="1110" height.Views="535">
+			<s:Panel width="165" chromeColor="#1E7D98" title="Views"
+					 x.Active="27" y.Active="55" height.Active="248"
+					 x.AssignedBy="28" y.AssignedBy="58" height.AssignedBy="254"
+					 x.AssignedTo="28" y.AssignedTo="58" height.AssignedTo="254"
+					 x.Complete="28" y.Complete="61" height.Complete="241"
+					 x.Overdue="27" y.Overdue="52" height.Overdue="250"
+					 x.Risk_Task="28" y.Risk_Task="58" height.Risk_Task="247"
+					 x.Time_Task="27" y.Time_Task="52" height.Time_Task="246"
+					 x.Views="28" y.Views="58" height.Views="245">
+				<s:layout>
+					<s:VerticalLayout/>
+				</s:layout>
+				<mx:LinkButton label="View All Tasks" click="linkbutton4_clickHandler(event)"
+							   fontWeight="bold"
+							   label.Active="All Tasks"
+							   label.AssignedBy="All Tasks"
+							   label.AssignedTo="All Tasks"
+							   click.AssignedTo="linkbutton4_clickHandler(event)"
+							   label.Complete="All Tasks"
+							   label.Overdue="All Tasks"
+							   label.Risk_Task="All Tasks"
+							   label.Time_Task="All Tasks"
+							   label.Views="All Tasks" click.Views="linkbutton4_clickHandler(event)"/>
+				<mx:LinkButton id="assignedto" label="Assigned To "
+							   click="assignedto_clickHandler(event)" fontWeight="bold"
+							   click.AssignedTo="assignedto_clickHandler(event)"/>
+				<mx:LinkButton id="assignedby" label="Assigned By" fontWeight="bold"
+							   click.Active="assignedby_clickHandler(event)"
+							   click.AssignedBy="assignedby_clickHandler(event)"
+							   click.AssignedTo="assignedby_clickHandler(event)"
+							   click.Complete="assignedby_clickHandler(event)"
+							   click.Overdue="assignedby_clickHandler(event)"
+							   click.Risk_Task="assignedby_clickHandler(event)"
+							   click.Time_Task="assignedby_clickHandler(event)"
+							   click.Views="assignedby_clickHandler(event)"/>
+				<mx:LinkButton label="View Complete Tasks" click="linkbutton2_clickHandler(event)"
+							   fontWeight="bold"
+							   label.Active="Complete Tasks"
+							   label.AssignedBy="Complete Tasks"
+							   label.AssignedTo="Complete Tasks"
+							   label.Complete="Complete Tasks"
+							   label.Overdue="Complete Tasks"
+							   label.Risk_Task="Complete Tasks"
+							   label.Time_Task="Complete Tasks"
+							   label.Views="Complete Tasks"/>
+				<mx:LinkButton label="View Active Tasks" click="linkbutton3_clickHandler(event)"
+							   fontWeight="bold"
+							   label.Active="Active Tasks"
+							   label.AssignedBy="Active Tasks"
+							   label.AssignedTo="Active Tasks"
+							   label.Complete="Active Tasks"
+							   label.Overdue="Active Tasks"
+							   label.Risk_Task="Active Tasks"
+							   label.Time_Task="Active Tasks"
+							   label.Views="Active Tasks"/>
+				<mx:LinkButton click="linkbutton5_clickHandler(event)" fontWeight="bold"
+							   label.Active="Overdue Tasks"
+							   label.AssignedBy="Overdue Tasks"
+							   label.AssignedTo="Overdue Tasks"
+							   label.Complete="Overdue Tasks"
+							   label.Overdue="Overdue Tasks"
+							   label.Risk_Task="Overdue Tasks"
+							   label.Time_Task="Overdue Tasks"
+							   label.Views="Overdue Tasks"/>
+				<mx:LinkButton label="Tasks At Risk" fontWeight="bold"
+							   click="linkbutton6_clickHandler(event)"/>
+				<mx:LinkButton label="On Time Tasks" click="linkbutton7_clickHandler(event)"
+							   fontWeight="bold"
+							   x.Active="27" y.Active="191"
+							   x.Complete="27" y.Complete="191"
+							   x.Overdue="27" y.Overdue="191"
+							   x.Risk_Task="27" y.Risk_Task="191"
+							   x.Time_Task="27" y.Time_Task="191"/>
+				</s:Panel>
+			
+			
+			<mx:AdvancedDataGrid id="time" includeIn="Time_Task"  x="200" y="26" width="1101"
+								 height="453" creationComplete="time_creationCompleteHandler(event)"
+								 dataProvider="{getOnTimeResult.lastResult}"
+								 designViewDataType="flat" horizontalScrollPolicy="auto"
+								 rowCount="12">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn visible="false" dataField="TASK_ID" headerText="TASK_ID"/>
+					<mx:AdvancedDataGridColumn visible="false" dataField="PARENT_TASK_ID"
+											   headerText="PARENT_TASK_ID"/>
+					<mx:AdvancedDataGridColumn dataField="SHORT_TITLE_TX" headerText="SHORT_TITLE_TX"/>
+					<mx:AdvancedDataGridColumn dataField="priority_nr" headerText="priority_nr"/>
+					<mx:AdvancedDataGridColumn visible="false" dataField="SHORT_DESCRIPTION_TX"
+											   headerText="SHORT_DESCRIPTION_TX"/>
+					<mx:AdvancedDataGridColumn visible="false" dataField="LONG_DESCRIPTION_TX"
+											   headerText="LONG_DESCRIPTION_TX"/>
+					<mx:AdvancedDataGridColumn dataField="DEADLINE_DT" headerText="DEADLINE_DT"/>
+					<mx:AdvancedDataGridColumn dataField="ESTIMATED_COMPLETION_DT"
+											   headerText="ESTIMATED_COMPLETION_DT"/>
+					<mx:AdvancedDataGridColumn dataField="COMPLETION_DT" headerText="COMPLETION_DT"/>
+					<mx:AdvancedDataGridColumn dataField="RECIPIENT_PERSON_ID"
+											   headerText="RECIPIENT_PERSON_ID"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_ORGANIZATION_ID"
+											   headerText="ASSIGNED_ORGANIZATION_ID"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_TO_PERSON_ID"
+											   headerText="ASSIGNED_TO_PERSON_ID"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_BY_PERSON_ID"
+											   headerText="ASSIGNED_BY_PERSON_ID"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_BY_USER_NM"
+											   headerText="CREATED_BY_USER_NM"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_DTTM" headerText="CREATED_DTTM"/>
+					<mx:AdvancedDataGridColumn visible="false" dataField="LAST_UPDATED_BY_USER_NM"
+											   headerText="LAST_UPDATED_BY_USER_NM"/>
+					<mx:AdvancedDataGridColumn visible="false" dataField="LAST_UPDATED_DTTM"
+											   headerText="LAST_UPDATED_DTTM"/>
+				</mx:columns>
+			</mx:AdvancedDataGrid>
+			
+			<mx:AdvancedDataGrid id="risk" includeIn="Risk_Task"  x="200" y="26" width="1101"
+								 height="453" creationComplete="risk_creationCompleteHandler(event)"
+								 dataProvider="{getAtRiskResult.lastResult}"
+								 designViewDataType="flat" dropShadowVisible="true"
+								 horizontalScrollPolicy="auto" rowCount="12">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn visible="false" dataField="TASK_ID" headerText="TASK_ID"/>
+					<mx:AdvancedDataGridColumn visible="false" dataField="PARENT_TASK_ID"
+											   headerText="PARENT_TASK_ID"/>
+					<mx:AdvancedDataGridColumn dataField="SHORT_TITLE_TX" headerText="SHORT_TITLE_TX"/>
+					<mx:AdvancedDataGridColumn dataField="priority_nr" headerText="priority_nr"/>
+					<mx:AdvancedDataGridColumn visible="false" dataField="SHORT_DESCRIPTION_TX"
+											   headerText="SHORT_DESCRIPTION_TX"/>
+					<mx:AdvancedDataGridColumn visible="false" dataField="LONG_DESCRIPTION_TX"
+											   headerText="LONG_DESCRIPTION_TX"/>
+					<mx:AdvancedDataGridColumn dataField="DEADLINE_DT" headerText="DEADLINE_DT"/>
+					<mx:AdvancedDataGridColumn dataField="ESTIMATED_COMPLETION_DT"
+											   headerText="ESTIMATED_COMPLETION_DT"/>
+					<mx:AdvancedDataGridColumn dataField="COMPLETION_DT" headerText="COMPLETION_DT"/>
+					<mx:AdvancedDataGridColumn dataField="RECIPIENT_PERSON_ID"
+											   headerText="RECIPIENT_PERSON_ID"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_ORGANIZATION_ID"
+											   headerText="ASSIGNED_ORGANIZATION_ID"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_TO_PERSON_ID"
+											   headerText="ASSIGNED_TO_PERSON_ID"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_BY_PERSON_ID"
+											   headerText="ASSIGNED_BY_PERSON_ID"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_BY_USER_NM"
+											   headerText="CREATED_BY_USER_NM"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_DTTM" headerText="CREATED_DTTM"/>
+					<mx:AdvancedDataGridColumn visible="false" dataField="LAST_UPDATED_BY_USER_NM"
+											   headerText="LAST_UPDATED_BY_USER_NM"/>
+					<mx:AdvancedDataGridColumn visible="false" dataField="LAST_UPDATED_DTTM"
+											   headerText="LAST_UPDATED_DTTM"/>
+				</mx:columns>
+			</mx:AdvancedDataGrid>
+			
+			
+				<mx:AdvancedDataGrid id="view" includeIn="Views" x="201" y="26" width="1101"
+									 height="453" change="Views_changeHandler(event)"
+									 creationComplete="Views_creationCompleteHandler(event)"
+									 dataProvider="{getTaskByIDResult2.lastResult}"
+									 designViewDataType="flat" dropShadowVisible="true"
+									 horizontalScrollPolicy="auto" rowCount="12">
+					<mx:columns>
+						<mx:AdvancedDataGridColumn visible="false" dataField="TASK_ID"
+												   headerText="TASK_ID"/>
+						<mx:AdvancedDataGridColumn visible="false" dataField="PARENT_TASK_ID"
+												   headerText="PARENT_TASK_ID"/>
+						<mx:AdvancedDataGridColumn dataField="SHORT_TITLE_TX" headerText="Short Title"/>
+						<mx:AdvancedDataGridColumn dataField="priority_nr" headerText="Priority"/>
+						<mx:AdvancedDataGridColumn visible="false" dataField="SHORT_DESCRIPTION_TX"
+												   headerText="Short Description"/>
+						<mx:AdvancedDataGridColumn visible="false" dataField="LONG_DESCRIPTION_TX"
+												   headerText="Long Description"/>
+						<mx:AdvancedDataGridColumn dataField="DEADLINE_DT" headerText="Deadline Date"/>
+						<mx:AdvancedDataGridColumn dataField="ESTIMATED_COMPLETION_DT"
+												   headerText="Estimated Completion Date"/>
+						<mx:AdvancedDataGridColumn dataField="COMPLETION_DT" headerText="Completion Date"/>
+						<mx:AdvancedDataGridColumn dataField="RECIPIENT_PERSON_ID"
+												   headerText="Recipient"/>
+						<mx:AdvancedDataGridColumn dataField="ASSIGNED_ORGANIZATION_ID"
+												   headerText="Assigned Organization"/>
+						<mx:AdvancedDataGridColumn dataField="ASSIGNED_TO_PERSON_ID"
+												   headerText="Assigned To"/>
+						<mx:AdvancedDataGridColumn dataField="ASSIGNED_BY_PERSON_ID"
+												   headerText="Assigned By"/>
+						<mx:AdvancedDataGridColumn dataField="CREATED_BY_USER_NM"
+												   headerText="Created By"/>
+						<mx:AdvancedDataGridColumn dataField="CREATED_DTTM" headerText="Created Date"/>
+						<mx:AdvancedDataGridColumn visible="false" dataField="LAST_UPDATED_BY_USER_NM"
+												   headerText="LAST_UPDATED_BY_USER_NM"/>
+						<mx:AdvancedDataGridColumn visible="false" dataField="LAST_UPDATED_DTTM"
+												   headerText="LAST_UPDATED_DTTM"/>
+					</mx:columns>	
+					
+			</mx:AdvancedDataGrid>
+
+			
+				<mx:AdvancedDataGrid id="compdt" includeIn="Complete" x="201" y="26" width="1101"
+									 height="453"
+									 creationComplete="compdt_creationCompleteHandler(event)"
+									 dataProvider="{getAllCompleteResult3.lastResult}"
+									 designViewDataType="flat" dropShadowVisible="true"
+									 horizontalScrollPolicy="auto" rowCount="12">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn dataField="SHORT_TITLE_TX" headerText="Short Title"/>
+					<mx:AdvancedDataGridColumn dataField="priority_nr" headerText="Priority"/>
+					<mx:AdvancedDataGridColumn dataField="DEADLINE_DT" headerText="Deadline"/>
+					<mx:AdvancedDataGridColumn dataField="COMPLETION_DT" headerText="Completion Date"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_ORGANIZATION_ID"
+											   headerText="Assigned Organization"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_TO_PERSON_ID"
+											   headerText="Assigned To"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_BY_PERSON_ID"
+											   headerText="Assigned By"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_BY_USER_NM"
+											   headerText="Created By"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_DTTM" headerText="Created Date"/>
+				</mx:columns>
+				</mx:AdvancedDataGrid>
+
+			
+				<mx:AdvancedDataGrid id="activetsk" includeIn="Active" x="200" y="26" width="1101"
+									 height="453"
+									 creationComplete="activetsk_creationCompleteHandler(event)"
+									 dataProvider="{getAllActiveResult2.lastResult}"
+									 designViewDataType="flat" dropShadowVisible="true"
+									 horizontalScrollPolicy="auto" rowCount="12">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn dataField="SHORT_TITLE_TX" headerText="Short Title"/>
+					<mx:AdvancedDataGridColumn dataField="priority_nr" headerText="Priority"/>
+					<mx:AdvancedDataGridColumn dataField="DEADLINE_DT" headerText="Deadline Date"/>
+					<mx:AdvancedDataGridColumn dataField="COMPLETION_DT" headerText="Completion Date"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_ORGANIZATION_ID"
+											   headerText="Assigned Organzation"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_TO_PERSON_ID"
+											   headerText="Assigned To"/>
+					<mx:AdvancedDataGridColumn dataField="ASSIGNED_BY_PERSON_ID"
+											   headerText="Assigned By"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_BY_USER_NM"
+											   headerText="Created By"/>
+					<mx:AdvancedDataGridColumn dataField="CREATED_DTTM" headerText="Created Date"/>
+				</mx:columns>
+			</mx:AdvancedDataGrid>
+			<mx:AdvancedDataGrid id="pasttask" includeIn="Overdue" x="200" y="26" width="1101"
+										 height="453"
+										 creationComplete="pasttask_creationCompleteHandler(event)"
+										 dataProvider="{getOverdueResult2.lastResult}"
+										 designViewDataType="flat" dropShadowVisible="true"
+										 horizontalScrollPolicy="auto" rowCount="12">
+						<mx:columns>
+							<mx:AdvancedDataGridColumn dataField="SHORT_TITLE_TX" headerText="Short Title "/>
+							<mx:AdvancedDataGridColumn dataField="priority_nr" headerText="Priority"/>
+							<mx:AdvancedDataGridColumn dataField="DEADLINE_DT" headerText="Deadline Date"/>
+							<mx:AdvancedDataGridColumn dataField="COMPLETION_DT" headerText="Completion Date"/>
+							<mx:AdvancedDataGridColumn dataField="ASSIGNED_ORGANIZATION_ID"
+													   headerText="Assigned Organization"/>
+							<mx:AdvancedDataGridColumn dataField="ASSIGNED_TO_PERSON_ID"
+													   headerText="Assigned to"/>
+							<mx:AdvancedDataGridColumn dataField="ASSIGNED_BY_PERSON_ID"
+													   headerText="Assigned by"/>
+							<mx:AdvancedDataGridColumn dataField="CREATED_BY_USER_NM"
+													   headerText="Created by"/>
+						</mx:columns>
+					</mx:AdvancedDataGrid>
+			<mx:ColumnChart id="assigntochart" includeIn="AssignedTo" x="217" y="57" width="75%"
+							height="75%"
+							creationComplete="assigntochart_creationCompleteHandler(event)"
+							dataProvider="{getAssignedToResult.lastResult}" showDataTips="true">
+				<mx:series>
+					<mx:ColumnSeries id="columnSeries" displayName="Assigned To Tasks" yField="COUNT2" xField="priority_nr"
+									 fill="{sc2}" stroke="{s2}"/>
+				</mx:series>
+				<mx:horizontalAxis>
+					<mx:CategoryAxis id="categoryAxis" categoryField="priority_nr" displayName="Priority Level"/>
+				</mx:horizontalAxis>
+				<mx:verticalAxis>
+					<mx:LinearAxis displayName="No. of Tasks"/>
+				</mx:verticalAxis>
+			</mx:ColumnChart>
+			<mx:Legend includeIn="AssignedTo" x="54" y="356" width="110" height="61"
+					   dataProvider="{assigntochart}"/>
+			<mx:BarChart id="assignedbychart" includeIn="AssignedBy" x="230" y="60" width="75%"
+						 height="75%"
+						 creationComplete="assignedbychart_creationCompleteHandler(event)"
+						 dataProvider="{getAssignedByResult.lastResult}" showDataTips="true">
+				<mx:series>
+					<mx:BarSeries id="barSeries" displayName="Assigned By Tasks" xField="COUNT3" yField="priority_nr"
+								  fill="{sc1}" stroke="{s1}"/>
+				</mx:series>
+				<mx:verticalAxis>
+					<mx:CategoryAxis id="categoryAxis2" categoryField="priority_nr" displayName="Priority Level"/>
+				</mx:verticalAxis>
+				<mx:horizontalAxis>
+					<mx:LinearAxis displayName="No. of Tasks"/>
+				</mx:horizontalAxis>
+			</mx:BarChart>
+			<mx:Legend includeIn="AssignedBy" x="62" y="364" dataProvider="{assignedbychart}"/>
+			
+
+		
+		</s:BorderContainer>
+		
+		<mx:LinkButton label="Home" click="linkbutton1_clickHandler(event)" fontWeight="bold"
+					   x.Active="28" y.Active="26" width.Active="61" height.Active="25"
+					   textAlign.Active="left"
+					   x.AssignedBy="28" y.AssignedBy="26" width.AssignedBy="61"
+					   height.AssignedBy="25" textAlign.AssignedBy="left"
+					   x.AssignedTo="28" y.AssignedTo="26" width.AssignedTo="61"
+					   height.AssignedTo="25" textAlign.AssignedTo="left"
+					   x.Complete="28" y.Complete="26" width.Complete="61" height.Complete="25"
+					   textAlign.Complete="left"
+					   x.Overdue="28" y.Overdue="26" width.Overdue="61" height.Overdue="25"
+					   textAlign.Overdue="left"
+					   x.Risk_Task="28" y.Risk_Task="26" width.Risk_Task="61" height.Risk_Task="25"
+					   textAlign.Risk_Task="left"
+					   x.Time_Task="28" y.Time_Task="26" width.Time_Task="61" height.Time_Task="25"
+					   textAlign.Time_Task="left"
+					   x.Views="28" y.Views="26" width.Views="61" height.Views="25"
+					   textAlign.Views="left"/>
+	</s:Panel>
+	<s:Button id="returntogwtodobutton" includeIn="Display_Task" x="300" y="138"
+			  label="Return to GWTODO" click="returntogwtodobutton_clickHandler(event)"
+			  fontFamily="Georgia" fontWeight="bold"/>
+	<s:Button id="Taskcreatebutton" includeIn="Display_Task" x="24" y="139" label="Create New Task"
+			  click="Taskcreatebutton_clickHandler(event)" fontFamily="Georgia" fontWeight="bold"/>
+	<s:Button id="delegatebutton" includeIn="Reassign_Task_Form" x="191" y="391"
+			  label="Reassign Task" click="delegate_clickHandler(event)" fontFamily="Georgia"
+			  fontWeight="bold"/>
+	<s:Button id="delegatetaskbutton" includeIn="Update_Task_Form" x="124" y="142" width="120"
+			  height="27" label="Update Task" click="updatetaskbutton_clickHandler(event)"
+			  fontFamily="Georgia" fontWeight="bold"/>
+	<s:Button id="gwtodoupdatebutton" includeIn="Update_Task_Form" x="278" y="142" width="121"
+			  height="26" label="GWTODO" click="gwtodoupdatebutton_clickHandler(event)"
+			  fontFamily="Georgia" fontWeight="bold"/>
+	<s:Button id="Delegatedisplaycancel" includeIn="Delegate_Task_Display" x="132" y="153"
+			  label="Back to GWTODO" click="Delegatedisplaycancel_clickHandler(event)"
+			  fontFamily="Georgia" fontWeight="bold"/>
+	<s:Button id="UpdateTaskDisplayCancel" includeIn="Update_Task_Display" x="111" y="128"
+			  label="Back to GWTODO" click="UpdateTaskDisplayCancel_clickHandler(event)"
+			  fontFamily="Georgia" fontWeight="bold"/>
+
+	
+	
+	<s:Panel includeIn="Task_View" x="-2" y="0" width="1033" height="561" chromeColor="#7C7979"
+			 fontFamily="Georgia" title="Task Report">
+		<mx:TabNavigator x="59" y="10" width="90%" height="486">
+			<s:NavigatorContent width="100%" height="100%" label="Task">
+				<s:Form x="97" y="12" width="80%" height="431">
+					<s:layout>
+						<s:BasicLayout/>
+					</s:layout>
+					<s:FormItem x="0" y="0" height="44" label="Short Title">
+						<s:TextInput id="ShortTitle_TXTextInput" editable="false"
+									 text="{view.selectedItem.SHORT_TITLE_TX}"/>
+					</s:FormItem>
+					<s:FormItem x="0" y="52" width="320" height="50" label="SHORT DESCRIPTION">
+						<s:TextInput id="SHORT_DESCRIPTION_TXTextInput" editable="false"
+									 text="{view.selectedItem.SHORT_DESCRIPTION_TX}"/>
+					</s:FormItem>
+					<s:FormItem x="418" y="3" width="145" height="44" label="PRIORITY">
+						
+						<s:TextInput id="PRIORITY_NRTextInput" width="45" editable="false"
+									 text="{view.selectedItem.priority_nr}"/>
+					</s:FormItem>
+					
+					<s:FormItem x="418" y="157" label="DEADLINE DATE">
+						<s:TextInput id="DEADLINE_DTDateField" editable="false" 
+									 text="{view.selectedItem.DEADLINE_DT}"/>
+					</s:FormItem>
+					<s:FormItem x="0" y="110" width="375" height="144" label="LONG DESCRIPTION">
+						<s:TextArea id="LONG_DESCRIPTION_TXTextInput" height="113" editable="false"
+									text="{view.selectedItem.LONG_DESCRIPTION_TX}"/>
+					</s:FormItem>
+					<s:FormItem x="418" y="207" width="328" height="47" label="ESTIMATED COMPLETION DATE">
+						
+						<s:TextInput id="ESTIMATED_COMPLETION_DTDateField" width="130" editable="false"
+									 text="{view.selectedItem.ESTIMATED_COMPLETION_DT}"/>
+					</s:FormItem>
+					<s:FormItem x="418" y="262" label="COMPLETION DATE">
+						<s:TextInput id="COMPLETION_DTDateField" editable="false"
+									 text="{view.selectedItem.COMPLETION_DT}"/>
+					</s:FormItem>
+					<s:FormItem x="0" y="262" label="RECIPIENT">
+						<s:TextInput id="RECIPIENT_PERSON_IDTextInput" editable="false"
+									 text="{view.selectedItem.RECIPIENT_PERSON_ID}"/>
+					</s:FormItem>
+					<s:FormItem x="0" y="362" label="ASSIGNED ORGANIZATION">
+						
+						<s:TextInput id="ASSIGNED_ORGANIZATION_IDTextInput" editable="false"
+									 text="{view.selectedItem.ASSIGNED_ORGANIZATION_ID}"/>
+					</s:FormItem>
+					<s:FormItem x="418" y="312" label="LAST UPDATED BY">
+						<s:TextInput id="LAST_UPDATED_BYTextInput" editable="false"
+									 text="{view.selectedItem.LAST_UPDATED_BY_USER_NM}"/>
+					</s:FormItem>
+					<s:FormItem x="418" y="362" label="LAST UPDATED DATE">
+						<mx:DateField id="LAST_UPDATED_DTTM" editable="false" enabled="false"
+									  selectedDate="{view.selectedItem.LAST_UPDATED_DTTM}"/>
+					</s:FormItem>
+					<s:FormItem x="418" y="55" height="47" label="CREATED BY">
+						<s:TextInput id="CREATED_BY_USER_NM" editable="false"
+									 text="{view.selectedItem.CREATED_BY_USER_NM}"/>
+					</s:FormItem>
+					<s:FormItem x="0" y="312" label="ASSIGNED TO">
+						<s:TextInput id="ASSIGNED_TO_PERSON_IDTextInput" editable="false"
+									 text="{view.selectedItem.ASSIGNED_TO_PERSON_ID}"/>
+					</s:FormItem>
+					<s:FormItem x="418" y="110" label="CREATED DATE">
+						<mx:DateField id="CREATED_DTTM" editable="false" enabled="false"
+									  selectedDate="{view.selectedItem.CREATED_DTTM}"/>
+					</s:FormItem>
+					
+				</s:Form>
+			</s:NavigatorContent>
+			<s:NavigatorContent width="100%" height="100%" label="Comments">
+				<s:DataGrid id="commentGrid" x="130" y="44" width="75%" height="75%"
+							creationComplete="dataGrid2_creationCompleteHandler(event)"
+							requestedRowCount="4">
+					<s:columns>
+						<s:ArrayList>
+							<s:GridColumn dataField="COMMENT_TYPE_TX"
+										  headerText="Comment Type"></s:GridColumn>
+							<s:GridColumn dataField="COMMENT_TX"
+										  headerText="Comment"></s:GridColumn>
+							<s:GridColumn dataField="CREATED_BY_USER_NM"
+										  headerText="Created By"></s:GridColumn>
+						</s:ArrayList>
+					</s:columns>
+					<s:typicalItem>
+						<fx:Object COMMENT_TYPE_TX="COMMENT_TYPE_TX1"
+								   CREATED_BY_USER_NM="CREATED_BY_USER_NM1"
+								   COMMENT_TX="COMMENT_TX1">
+						</fx:Object>
+					</s:typicalItem>
+					<s:AsyncListView list="{TypeUtility.convertToCollection(getCommentByIDResult.lastResult)}"/>
+				</s:DataGrid>
+			</s:NavigatorContent>
+		</mx:TabNavigator>
+		<mx:LinkButton x="96" y="-26" label="Back" click="linkbutton9_clickHandler(event)"  fontSize="14" fontWeight="bold"/>
+	</s:Panel>
+
+	
+	
+	<s:Form includeIn="Create_Org" x="251" y="154" defaultButton="{createorg}" fontFamily="Georgia">
+		<s:FormItem width="391" label="Organization Name">
+			<s:TextArea id="oRGANIZATION_NMTextInput" width="190" height="27" maxChars="50"
+						text="{organization.ORGANIZATION_NM}"/>
+		</s:FormItem>
+		<s:FormItem label="Organization Description">
+			<s:TextArea id="oRGANIZATION_SHORT_TITLE_TXTextInput" width="190" height="75"
+						maxChars="2000" text="{organization.ORGANIZATION_SHORT_TITLE_TX}"/>
+		</s:FormItem>
+	</s:Form>
+	<s:Form includeIn="Create_Org">
+	</s:Form>
+	<s:Button id="gotoviewgrp" includeIn="Task_Home" x="623" y="264" width="230" height="35"
+			  label="VIEW GROUPS" click="gotoviewgrp_clickHandler(event)" fontFamily="Georgia"
+			  fontSize="20" fontWeight="bold"/>
+	<s:Button id="creategrp" includeIn="Task_Home" x="386" y="264" width="230" height="35"
+			  label="CREATE GROUP" click="creategrp_clickHandler(event)" fontFamily="Georgia"
+			  fontSize="20" fontWeight="bold"/>
+	<s:Button id="createorg" includeIn="Create_Org" x="346" y="336" label="Submit"
+			  click="createorg_clickHandler(event)" fontFamily="Georgia" fontWeight="bold"/>
+	<s:Button id="cancelorgcreate" includeIn="Create_Org" x="528" y="336" label="Cancel"
+			  click="cancelorgcreate_clickHandler(event)" fontFamily="Georgia" fontWeight="bold"/>
+	<s:Label includeIn="Reassign_Task_Form" x="0" y="10" width="955" height="110"
+			 backgroundColor="#FC0303" color="#FEFEFE" fontFamily="Georgia" fontSize="35"
+			 fontWeight="bold" text="Reassign Task" textAlign="center" verticalAlign="middle"/>
+	
+	
+	<s:Scroller includeIn="view_group" x="151" y="147" width="648" height="350">
+		<s:VGroup width="100%" height="100%">
+			<mx:AdvancedDataGrid id="disp_grp" width="680" height="367"
+								 creationComplete="disp_grp_creationCompleteHandler(event)"
+								 dataProvider="{getAllGroupResult.lastResult}"
+								 designViewDataType="flat" dropShadowVisible="true"
+								 fontFamily="Georgia" variableRowHeight="true">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn dataField="ORGANIZATION_ID"
+											   headerText="Organization Id"/>
+					<mx:AdvancedDataGridColumn dataField="ORGANIZATION_NM"
+											   headerText="Organization Name"/>
+					<mx:AdvancedDataGridColumn dataField="ORGANIZATION_SHORT_TITLE_TX"
+											   headerText="Organization Description"/>
+				</mx:columns>
+			</mx:AdvancedDataGrid>
+		</s:VGroup>
+	</s:Scroller>	
+	
+	<s:Button id="createnothergroup" includeIn="view_group" x="312" y="118" label="Create Group"
+			  click="createanothergroup_clickHandler(event)" fontFamily="Georgia" fontWeight="bold"/>
+	
+	
+	
+	
+	<s:Label id="signuplbl" includeIn="Login" x="833" y="76" width="90" height="27"
+			 backgroundColor="#33D4E2" color="#FEFDFD" fontFamily="Georgia" fontSize="16"
+			 fontWeight="bold" text="Sign Up" textAlign="center" verticalAlign="middle"
+			 buttonMode="true" click="signuplbl_clickHandler(event)"/>
+	<s:Form includeIn="Signup" x="500" y="187" defaultButton="{submitaccount}" fontFamily="Georgia">
+		<s:FormItem width="402" label="First Name">
+			<s:TextInput id="fIRST_NMTextInput" text="{person.FIRST_NM}"/>
+		</s:FormItem>
+		<s:FormItem width="403" label="Last Name">
+			<s:TextInput id="lAST_NMTextInput" text="{person.LAST_NM}"/>
+		</s:FormItem>
+		<s:FormItem width="403" label="Email Address">
+			<s:TextInput id="eMAIL_ADDRESS_TXTextInput" text="{person.EMAIL_ADDRESS_TX}"/>
+		</s:FormItem>
+		<s:FormItem width="403" label="Phone Number (###-##-####)">
+			<s:TextInput id="pHONE_NUMBER_TXTextInput" text="{person.PHONE_NUMBER_TX}"/>
+		</s:FormItem>
+	</s:Form>
+	<s:Button id="submitaccount" includeIn="Signup" x="345" y="440" width="112" height="33" label="Submit"
+			  chromeColor="#027425" click="submitaccount_clickHandler(event)" fontSize="14"
+			  fontWeight="bold"/>
+	
+	<s:Form includeIn="Signup" x="51" y="187" fontFamily="Georgia"> 
+		<s:FormItem width="397" label="Username">
+			<s:TextInput id="uSER_NMTextInput" text="{user_account1.USER_NM}"/>
+		</s:FormItem>
+		<s:FormItem width="396" label="Password">
+			<s:TextInput id="pASSWORD_TXTextInput" text="{user_account1.PASSWORD_TX}" displayAsPassword="true"/>
+		</s:FormItem>
+		<s:FormItem width="399" label="Security Question">
+			<s:TextInput id="sECURITY_QUESTION_TXTextInput"
+						 text="{user_account1.SECURITY_QUESTION_TX}"/>
+		</s:FormItem>
+		<s:FormItem width="395" label="Security Response">
+			<s:TextInput id="sECURITY_QUESTION_RESPONSE_TXTextInput"
+						 text="{user_account1.SECURITY_QUESTION_RESPONSE_TX}"/>
+		</s:FormItem>
+	</s:Form>
+	
+	
+	<s:Label includeIn="Signup" x="2" y="0" width="954" height="104" backgroundColor="#210255"
+			 color="#FFFEFE" fontFamily="Georgia" fontSize="36" fontWeight="bold" text="Register"
+			 textAlign="center" verticalAlign="middle"/>
+	<s:Label includeIn="Signup" x="8" y="142" width="948" height="22" backgroundColor="#97969B"
+			 color="#FEFAFA" fontFamily="Georgia" fontSize="16" fontStyle="italic"
+			 fontWeight="bold" text="Profile Information:" textAlign="center" verticalAlign="middle"/>
+	<s:Button includeIn="Signup" x="533" y="440" width="112" height="33" label="Cancel"
+			  chromeColor="#930505" click="cancelsignup_clickHandler(event)" fontSize="14"
+			  fontWeight="bold"/>
+	<s:Button includeIn="Task_Home" x="502" y="136" width="246" height="35" label="MANAGE ACCOUNT"
+			  chromeColor="#CCCCCC" click="ManageAccountsbtn_clickHandler(event)"
+			  fontFamily="Georgia" fontSize="20" fontWeight="bold"/>
+	<s:Label includeIn="Account_Details,Change_Password,Edit_Profile" x="0" y="0" width="955"
+			 height="118" backgroundColor="#210156" color="#FEFDFD" fontSize="36" fontWeight="bold"
+			 textAlign="center" verticalAlign="middle"
+			 fontFamily.Account_Details="Georgia" text.Account_Details="Edit Profile"
+			 y.Change_Password="10" height.Change_Password="100"
+			 fontFamily.Change_Password="Georgia" text.Change_Password="Account Update"
+			 fontFamily.Edit_Profile="Georgia" text.Edit_Profile="Update Profile"/>
+	<s:Group includeIn="Account_Details,Change_Password,Edit_Profile" width="335" height="221"
+			 x.Account_Details="86" y.Account_Details="194"
+			 x.Change_Password="112" y.Change_Password="167" width.Change_Password="373"
+			 height.Change_Password="187"
+			 x.Edit_Profile="86" y.Edit_Profile="194">
+		<s:Label includeIn="Account_Details,Edit_Profile" x="41" y="12" fontFamily="Georgia"
+				 fontSize="20" fontWeight="bold" text="Username :"/>
+		<s:Label id="usernamelbl" includeIn="Account_Details,Edit_Profile" x="197" y="14"
+				 fontFamily="Georgia" fontSize="14"/>
+		<s:Label includeIn="Account_Details,Edit_Profile" x="41" y="54" fontFamily="Georgia"
+				 fontSize="20" fontWeight="bold" text="First Name:"/>
+		<s:Label x="41" y="96" width="120" fontFamily="Georgia" fontSize="20" fontWeight="bold"
+				 text="Last Name:"
+				 x.Change_Password="8" y.Change_Password="54" width.Change_Password="204"
+				 text.Change_Password="Current Password:"/>
+		<s:Label x="42" y="138" width="119" fontFamily="Georgia" fontSize="20" fontWeight="bold"
+				 text="Email :"
+				 x.Change_Password="8" y.Change_Password="96" width.Change_Password="192"
+				 textAlign.Change_Password="right" text.Change_Password="New Password:"/>
+		<s:Label includeIn="Account_Details,Edit_Profile" x="42" y="180" width="119"
+				 fontFamily="Georgia" fontSize="20" fontWeight="bold" text="Contact :"/>
+		<s:Label includeIn="Account_Details" x="197" y="56" fontFamily="Georgia" fontSize="14"/>
+		<s:Label includeIn="Account_Details" x="197" y="104"/>
+		<s:Label includeIn="Account_Details" x="197" y="146"/>
+		<s:Label includeIn="Account_Details" x="197" y="188"/>
+		<s:TextInput id="fIRST_NMTextInput1" includeIn="Edit_Profile" x="197" y="52" text="{personedit.FIRST_NM}"/>
+		<s:TextInput id="lAST_NMTextInput1" includeIn="Edit_Profile" x="197" y="94"
+					 text="{personedit.LAST_NM}"/>
+		<s:TextInput id="eMAIL_ADDRESS_TXTextInput1" includeIn="Edit_Profile" x="197" y="136"
+					 text="{personedit.EMAIL_ADDRESS_TX}"/> 
+		<s:TextInput id="pHONE_NUMBER_TXTextInput1" includeIn="Edit_Profile" x="197" y="178" text="{personedit.PHONE_NUMBER_TX}"/>
+		<s:TextInput id="currentpasswdtext" includeIn="Change_Password" x="220" y="52" displayAsPassword="true"/>
+		<s:TextInput id="newpasswdtext" includeIn="Change_Password" x="220" y="94" displayAsPassword="true"/>
+		<s:TextInput id="confirmnewpasswdtext" includeIn="Change_Password" x="220" y="136" displayAsPassword="true"/>
+		<s:Label includeIn="Change_Password" x="-55" y="134" fontFamily="Georgia" fontSize="20"
+				 fontWeight="bold" text="Confirm New Password:" textAlign="right"/>
+	</s:Group>
+	<s:Button id="editProfileSavebtn" includeIn="Account_Details,Change_Password,Edit_Profile"
+			  x="112" y="455" width="118" height="35" label="Edit" chromeColor="#210157"
+			  color="#FEFCFC" fontFamily="Georgia" fontSize="15" fontWeight="bold"
+			  click.Account_Details="profileEditbtn_clickHandler(event)"
+			  x.Change_Password="160" y.Change_Password="362" label.Change_Password="Save"
+			  click.Change_Password="changePasswordSavebtn_clickHandler(event)"
+			  label.Edit_Profile="Save" click.Edit_Profile="editProfileSavebtn_clickHandler(event)"/>
+	<s:Button id="passwordChangeCancelbtn" includeIn="Account_Details,Change_Password,Edit_Profile"
+			  x="283" y="455" width="118" height="35" label="Cancel" chromeColor="#210157"
+			  color="#FEFEFE" fontFamily="Georgia" fontSize="15" fontWeight="bold"
+			  click.Account_Details="profileCancelbtn_clickHandler(event)"
+			  x.Change_Password="326" y.Change_Password="362"
+			  click.Change_Password="passwordChangeCancelbtn_clickHandler(event)"
+			  fontFamily.Change_Password="Georgia"
+			  click.Edit_Profile="editProfileCancelbtn_clickHandler(event)"
+			  fontFamily.Edit_Profile="Georgia"/>
+	<s:Button includeIn="Account_Details,Edit_Profile" x="711" y="126" width="166" height="26"
+			  label="Change Password" chromeColor="#210256" color="#FEFDFD"
+			  click.Account_Details="accountdet_clickHandler(event)"
+			  fontFamily.Account_Details="Georgia"
+			  click.Edit_Profile="editprof_clickHandler(event)" fontFamily.Edit_Profile="Georgia"
+			  fontWeight.Edit_Profile="bold"/>
+	<s:Button id="deleteprofilebtn" includeIn="Account_Details" x="529" y="126" width="166"
+			  height="26" label="Delete Profile" chromeColor="#210256"
+			  click="deleteprofilebtn_clickHandler(event)" color="#FFFFFF" fontFamily="Georgia"/>
+	<s:VideoPlayer includeIn="Login" x="54" y="165" width="344" height="290" autoPlay="true"
+				   source="assets/TODO [DB2].m4v"/>
+	<s:Label includeIn="Create_Org" x="-22" y="10" width="977" height="95" backgroundColor="#A4B81C"
+			 color="#FFFFFF" fontFamily="Georgia" fontSize="35" fontWeight="bold" text="Create a Group"
+			 textAlign="center" verticalAlign="middle"/>
+	<s:Button id="returnfromgrp" includeIn="view_group" x="183" y="118" label="GWtodo"
+			  click="returnfromgrp_clickHandler(event)" fontFamily="Georgia" fontWeight="bold"/>
+	<s:Label includeIn="view_group" x="-22" y="10" width="977" height="95" backgroundColor="#1E7D98"
+			 color="#FFFFFF" fontFamily="Georgia" fontSize="35" fontWeight="bold"
+			 text="Create a Group" textAlign="center" verticalAlign="middle"/>
+	
+	
+</s:Application>

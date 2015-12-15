@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>TASK_MANAGER_R2</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>com.adobe.flexbuilder.project.flexbuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>com.adobe.flexbuilder.project.flexnature</nature>
+		<nature>com.adobe.flexbuilder.project.actionscriptnature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>bin-debug</name>
+			<type>2</type>
+			<location>C:/wamp/www/TASK_MANAGER_R2-debug</location>
+		</link>
+		<link>
+			<name>services/TaskService.php</name>
+			<type>1</type>
+			<location>C:/wamp/www/TASK_MANAGER_R2-debug/services/TaskService.php</location>
+		</link>
+		<link>
+			<name>services/UseraccountService.php</name>
+			<type>1</type>
+			<location>C:/wamp/www/TASK_MANAGER_R2-debug/services/UseraccountService.php</location>
+		</link>
+	</linkedResources>
+</projectDescription>

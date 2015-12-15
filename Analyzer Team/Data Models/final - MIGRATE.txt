@@ -1,0 +1,58 @@
+DELETE FROM question_dim;
+
+DELETE FROM questionnaire_dim;
+
+DELETE FROM location_dim;
+
+DELETE FROM respondee_dim;
+DELETE FROM question_response;
+
+
+INSERT INTO location_dim (city, country)
+SELECT distinct City, Country
+FROM gwu_session
+;
+
+
+INSERT INTO question_dim (question_id, questionnaire_id, question_text, ans_type)
+SELECT question_number, QuestionnaireID, gwu_question.text, AnsType
+FROM gwu_question
+
+
+
+;
+
+
+INSERT INTO questionnaire_dim (questionnaire_id, topic, date_created, allow_anonymous, allow_multiple, title, creator_name)
+SELECT QuestionnaireID, Topic, DateCreated, AllowAnonymous, AllowMultiple, Title, CreatorName
+FROM gwu_questionnaire
+;
+
+
+INSERT INTO respondee_dim(respondee_id, survey_completed, survey_taken_date, username, ip, duration)
+SELECT SessionID, SurveyCompleted, SurveyTakenDate, User_name, IP, Duration
+FROM gwu_session
+;
+
+INSERT INTO question_response (response_id, response_content, response_type, questionnaire_dim_questionnaire_id, question_dim_questionnaire_id, question_dim_question_id, respondee_dim_respondee_id)
+SELECT ResponceID, ResponceContent, ResponceType, QuestionnaireID, QuestionnaireID, Question_Number, SessionID
+FROM gwu_response
+;
+
+
+UPDATE question_response SET
+time_dim_time_id = 
+(SELECT time_id
+FROM time_dim, gwu_session
+WHERE question_response.respondee_dim_respondee_id = gwu_session.SessionID
+AND time_dim.date = gwu_session.SurveyTakenDate)
+;
+
+UPDATE question_response SET
+location_dim_location_id = 
+(SELECT location_id
+FROM location_dim, gwu_session
+WHERE question_response.respondee_dim_respondee_id = gwu_session.SessionID
+AND location_dim.country = gwu_session.Country
+AND location_dim.city = gwu_session.city)
+;
